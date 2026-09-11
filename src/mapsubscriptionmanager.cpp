@@ -244,4 +244,3 @@ void MapSubscriptionManager::addServerMap(const QString &mapName)
         emit allMapNamesChanged();
     }
 }
-

@@ -701,4 +701,3 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
 }
 
 #endif
-

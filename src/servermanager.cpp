@@ -616,4 +616,3 @@ QVariantList ServerManager::communityServers(const QString &community)
     }
     return list;
 }
-

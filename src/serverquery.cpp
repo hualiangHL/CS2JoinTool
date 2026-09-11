@@ -263,4 +263,3 @@ bool ServerQuery::connectToServer(const QString &ip, int port, const QString &pa
 
     return QDesktopServices::openUrl(QUrl(url));
 }
-

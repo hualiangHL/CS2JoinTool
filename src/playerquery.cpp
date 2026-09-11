@@ -198,4 +198,3 @@ void PlayerQuery::onTimeout()
     emit queryingChanged(false);
     emit queryError(QString("查询超时: %1:%2").arg(m_ip).arg(m_port));
 }
-

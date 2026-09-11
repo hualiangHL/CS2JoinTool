@@ -435,4 +435,3 @@ QString WorkshopManager::findWorkshopId(const QString &mapName)
     qDebug() << "[Workshop] findWorkshopId not found:" << mapName;
     return "";
 }
-

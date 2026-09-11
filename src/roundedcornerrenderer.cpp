@@ -146,4 +146,3 @@ void RoundedCornerRenderer::cleanup()
     }
     m_initialized = false;
 }
-

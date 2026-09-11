@@ -474,4 +474,3 @@ void UBServerManager::updateServerList()
     emit serversChanged();
     emit totalPlayersChanged();
 }
-

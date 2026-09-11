@@ -192,4 +192,3 @@ void BaServerTime::handleTextMessage(const QByteArray &message)
         emit dataUpdated();
     }
 }
-

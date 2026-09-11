@@ -173,4 +173,3 @@ void MapCooldownManager::applyFilter()
     m_filteredMaps = result;
     emit filteredMapsChanged();
 }
-

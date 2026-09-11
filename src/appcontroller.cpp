@@ -847,4 +847,3 @@ void AppController::notifyExistingInstance()
         socket.disconnectFromServer();
     }
 }
-
