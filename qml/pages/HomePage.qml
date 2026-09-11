@@ -507,4 +507,3 @@ Item {
         easing.type: Easing.OutCubic
     }
 }
-

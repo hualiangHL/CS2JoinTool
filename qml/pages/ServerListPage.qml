@@ -1816,4 +1816,3 @@ Item {
     NumberAnimation { id: sortDropdownAnim; target: serverListPage; property: "sortDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
     NumberAnimation { id: panelProtoDropdownAnim; target: serverListPage; property: "panelProtoDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
 }
-
