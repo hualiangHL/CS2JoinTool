@@ -24,4 +24,4 @@ T.BusyIndicator {
         color: control.Universal.accent
         visible: control.running
     }
-}
+}

@@ -75,4 +75,4 @@ T.CheckDelegate {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

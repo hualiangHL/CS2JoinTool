@@ -32,4 +32,4 @@ T.ToolTip {
         border.color: control.palette.dark
         color: control.palette.toolTipBase
     }
-}
+}

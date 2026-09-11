@@ -36,4 +36,4 @@ T.ToolTip {
         border.color: control.Universal.chromeHighColor
         border.width: 1 
     }
-}
+}

@@ -21,4 +21,4 @@ T.Frame {
         color: "transparent"
         border.color: Qt.lighter(Fusion.outline(control.palette), 1.08)
     }
-}
+}

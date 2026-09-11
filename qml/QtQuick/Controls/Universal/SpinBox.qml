@@ -116,4 +116,4 @@ T.SpinBox {
                        control.hovered ? control.Universal.baseMediumColor : control.Universal.chromeDisabledLowColor
         color: control.enabled ? control.Universal.background : control.Universal.baseLowColor
     }
-}
+}

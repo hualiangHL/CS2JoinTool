@@ -9,4 +9,4 @@ T.ApplicationWindow {
     id: window
 
     color: window.palette.window
-}
+}

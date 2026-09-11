@@ -25,4 +25,4 @@ T.ToolSeparator {
         implicitHeight: control.vertical ? control.__config.background.height : 1
         color: Application.styleHints.colorScheme === Qt.Light ? "#0F000000" : "#15FFFFFF"
     }
-}
+}

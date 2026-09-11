@@ -31,4 +31,4 @@ T.ProgressBar {
 
         color: Qt.rgba(control.Material.accentColor.r, control.Material.accentColor.g, control.Material.accentColor.b, 0.25)
     }
-}
+}

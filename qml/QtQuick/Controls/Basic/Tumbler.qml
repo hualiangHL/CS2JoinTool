@@ -51,4 +51,4 @@ T.Tumbler {
         border.color: control.visualFocus ? control.palette.highlight : control.palette.windowText
         border.width: control.visualFocus ? 2 : 1
     }
-}
+}

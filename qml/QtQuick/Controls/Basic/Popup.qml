@@ -27,4 +27,4 @@ T.Popup {
     T.Overlay.modeless: Rectangle {
         color: Color.transparent(control.palette.shadow, 0.12)
     }
-}
+}

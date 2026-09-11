@@ -14,4 +14,4 @@ T.Action {
     onTriggered: editor.copy()
 
     required property Item editor
-}
+}

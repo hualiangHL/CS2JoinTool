@@ -31,4 +31,4 @@ Item {
 
         fragmentShader: "qrc:/qt-project.org/imports/QtQuick/Controls/Imagine/impl/shaders/OpacityMask.frag.qsb"
     }
-}
+}

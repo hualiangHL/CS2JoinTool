@@ -46,4 +46,4 @@ T.ScrollIndicator {
         opacity: control.contentItem.opacity
         color: control.palette.mid
     }
-}
+}

@@ -79,4 +79,4 @@ T.DelayButton {
             scale: control.mirrored ? -1 : 1
         }
     }
-}
+}

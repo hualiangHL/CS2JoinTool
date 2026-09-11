@@ -141,4 +141,4 @@ T.DoubleSpinBox {
             radius: control.__config.background.bottomOffset
         }
     }
-}
+}

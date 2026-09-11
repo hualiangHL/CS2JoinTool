@@ -60,4 +60,4 @@ T.StackView {
         LineAnimation { property: "x"; from: 0; to: (control.mirrored ? -0.5 : 0.5) * -control.width }
         FadeOut {}
     }
-}
+}

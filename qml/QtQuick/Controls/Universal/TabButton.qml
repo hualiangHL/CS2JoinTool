@@ -33,4 +33,4 @@ T.TabButton {
         font: control.font
         color: defaultIconColor
     }
-}
+}

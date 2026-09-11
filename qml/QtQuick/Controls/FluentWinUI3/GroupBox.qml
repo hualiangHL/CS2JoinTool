@@ -68,4 +68,4 @@ T.GroupBox {
             height: parent.height
         }
     }
-}
+}

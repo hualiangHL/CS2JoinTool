@@ -50,4 +50,4 @@ T.ToolBar {
             color: control.position === T.ToolBar.Header ? Fusion.darkShade : Fusion.lightShade
         }
     }
-}
+}

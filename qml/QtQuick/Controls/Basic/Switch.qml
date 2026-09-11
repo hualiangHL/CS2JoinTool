@@ -65,4 +65,4 @@ T.Switch {
         font: control.font
         color: control.palette.windowText
     }
-}
+}

@@ -38,4 +38,4 @@ Menu {
     SelectAllAction {
         editor: menu.editor
     }
-}
+}

@@ -59,4 +59,4 @@ T.SwipeDelegate {
             ]
         }
     }
-}
+}

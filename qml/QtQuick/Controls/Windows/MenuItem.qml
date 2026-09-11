@@ -72,4 +72,4 @@ T.MenuItem {
         color: Qt.rgba(0, 0, 0, alpha)
         visible: control.down || control.highlighted
     }
-}
+}

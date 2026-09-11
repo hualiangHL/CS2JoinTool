@@ -22,4 +22,4 @@ T.ToolBar {
         implicitHeight: 48 
         color: control.Universal.chromeMediumColor
     }
-}
+}

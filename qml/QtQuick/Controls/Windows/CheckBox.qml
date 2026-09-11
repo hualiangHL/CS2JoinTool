@@ -76,4 +76,4 @@ T.CheckBox {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

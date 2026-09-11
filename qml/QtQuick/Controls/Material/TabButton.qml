@@ -43,4 +43,4 @@ T.TabButton {
         active: enabled && (control.down || control.visualFocus || control.hovered)
         color: control.Material.rippleColor
     }
-}
+}

@@ -58,4 +58,4 @@ T.DelayButton {
             border.color: control.Universal.baseMediumLowColor
         }
     }
-}
+}

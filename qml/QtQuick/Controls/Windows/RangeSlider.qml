@@ -102,4 +102,4 @@ T.RangeSlider {
             color: Qt.rgba(control.palette.highlight.r, control.palette.highlight.g, control.palette.highlight.b, 0.3)
         }
     }
-}
+}

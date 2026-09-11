@@ -22,4 +22,4 @@ T.ToolBar {
         implicitHeight: 40
         color: control.palette.button
     }
-}
+}

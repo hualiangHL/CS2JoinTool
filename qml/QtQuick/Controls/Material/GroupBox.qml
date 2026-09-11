@@ -48,4 +48,4 @@ T.GroupBox {
             roundedScale: control.background.radius
         }
     }
-}
+}

@@ -117,4 +117,4 @@ T.ProgressBar {
             width: parent.width
         }
     }
-}
+}

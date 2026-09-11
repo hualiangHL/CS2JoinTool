@@ -80,4 +80,4 @@ T.ProgressBar {
             color: Fusion.topShadow
         }
     }
-}
+}

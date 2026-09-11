@@ -60,4 +60,4 @@ T.Slider {
             color: control.enabled ? control.Universal.accent : control.Universal.chromeDisabledHighColor
         }
     }
-}
+}

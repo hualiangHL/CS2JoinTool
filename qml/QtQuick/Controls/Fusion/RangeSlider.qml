@@ -45,4 +45,4 @@ T.RangeSlider {
         progress: control.second.position
         visualProgress: control.second.visualPosition
     }
-}
+}

@@ -111,4 +111,4 @@ T.DelayButton {
             visible: !control.checked && control.enabled
         }
     }
-}
+}

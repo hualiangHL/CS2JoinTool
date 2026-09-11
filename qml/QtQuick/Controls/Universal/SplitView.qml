@@ -19,4 +19,4 @@ T.SplitView {
         color: T.SplitHandle.pressed ? control.Universal.baseMediumColor
             : (enabled && T.SplitHandle.hovered ? control.Universal.baseMediumLowColor : control.Universal.chromeHighColor)
     }
-}
+}

@@ -10,4 +10,4 @@ T.ApplicationWindow {
     id: window
 
     color: Material.backgroundColor
-}
+}

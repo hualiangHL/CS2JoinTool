@@ -57,4 +57,4 @@ Rectangle {
         }
         border.color: Color.transparent(indicator.checkMarkColor, 180 / 255)
     }
-}
+}

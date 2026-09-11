@@ -218,4 +218,4 @@ Item {
             height: effect.sourceItem.height
         }
     }
-}
+}

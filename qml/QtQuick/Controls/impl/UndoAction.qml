@@ -14,4 +14,4 @@ T.Action {
     onTriggered: editor.undo()
 
     required property Item editor
-}
+}

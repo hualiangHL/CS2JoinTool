@@ -56,4 +56,4 @@ Rectangle {
             SmoothedAnimation { velocity: 200 }
         }
     }
-}
+}

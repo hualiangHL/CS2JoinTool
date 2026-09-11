@@ -40,4 +40,4 @@ T.ToolButton {
         visible: control.down || control.checked || control.highlighted || control.visualFocus
             || (enabled && control.hovered)
     }
-}
+}

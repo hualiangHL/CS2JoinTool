@@ -14,4 +14,4 @@ T.Action {
     onTriggered: editor.remove(editor.selectionStart, editor.selectionEnd)
 
     required property Item editor
-}
+}

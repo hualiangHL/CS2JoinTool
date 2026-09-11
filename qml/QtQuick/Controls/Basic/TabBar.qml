@@ -33,4 +33,4 @@ T.TabBar {
     background: Rectangle {
         color: control.palette.window
     }
-}
+}

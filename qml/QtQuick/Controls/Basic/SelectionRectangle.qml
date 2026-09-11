@@ -25,4 +25,4 @@ T.SelectionRectangle {
         property Item control: SelectionRectangle.control
     }
 
-}
+}

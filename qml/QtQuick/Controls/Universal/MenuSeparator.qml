@@ -26,4 +26,4 @@ T.MenuSeparator {
     background: Rectangle {
         color: control.Universal.altMediumLowColor
     }
-}
+}

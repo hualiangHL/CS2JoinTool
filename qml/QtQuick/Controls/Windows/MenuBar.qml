@@ -32,4 +32,4 @@ T.MenuBar {
         implicitHeight: 20
         color: control.palette.button 
     }
-}
+}

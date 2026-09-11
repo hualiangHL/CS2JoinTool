@@ -26,4 +26,4 @@ T.BusyIndicator {
         opacity: control.running ? 1 : 0
         Behavior on opacity { OpacityAnimator { duration: 250 } }
     }
-}
+}

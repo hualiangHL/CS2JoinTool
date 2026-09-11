@@ -36,4 +36,4 @@ T.HeaderViewDelegate {
                                               enabled ? 1.0 : 0.2)
         text: control.model[control.headerView.textRole]
     }
-}
+}

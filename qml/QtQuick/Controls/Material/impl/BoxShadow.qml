@@ -43,4 +43,4 @@ RectangularGlow {
     spread: strength
 
     cornerRadius: blurRadius + sourceRadius
-}
+}

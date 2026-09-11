@@ -62,4 +62,4 @@ T.SwipeDelegate {
             enabled: control.swipe.position === 0
         }
     }
-}
+}

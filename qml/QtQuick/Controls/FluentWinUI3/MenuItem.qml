@@ -83,4 +83,4 @@ T.MenuItem {
         color: Application.styleHints.colorScheme === Qt.Light ? Qt.rgba(0, 0, 0, alpha) : Qt.rgba(1, 1, 1, alpha)
         visible: control.down || control.highlighted
     }
-}
+}

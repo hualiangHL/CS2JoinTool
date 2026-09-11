@@ -52,4 +52,4 @@ T.Switch {
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
     }
-}
+}

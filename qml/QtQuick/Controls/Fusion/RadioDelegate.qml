@@ -50,4 +50,4 @@ T.RadioDelegate {
         color: control.down ? Fusion.buttonColor(control.palette, false, true, true)
                             : control.highlighted ? Fusion.highlight(control.palette) : control.palette.base
     }
-}
+}

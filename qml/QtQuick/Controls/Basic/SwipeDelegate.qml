@@ -47,4 +47,4 @@ T.SwipeDelegate {
         border.color: control.down || control.highlighted || control.visualFocus ?
                           control.palette.highlightedText : control.palette.text
     }
-}
+}

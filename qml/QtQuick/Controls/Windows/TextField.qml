@@ -11,4 +11,4 @@ NativeStyle.DefaultTextField {
     ContextMenu.menu: TextEditingContextMenu {
         editor: control
     }
-}
+}

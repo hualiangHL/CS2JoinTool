@@ -86,4 +86,4 @@ T.SwitchDelegate {
             y: control.__verticalOffset
         }
     }
-}
+}

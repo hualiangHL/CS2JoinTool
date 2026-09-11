@@ -35,4 +35,4 @@ T.PageIndicator {
             delegate: control.delegate
         }
     }
-}
+}

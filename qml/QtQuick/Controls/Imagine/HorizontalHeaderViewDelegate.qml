@@ -28,4 +28,4 @@ T.HeaderViewDelegate {
         color: "#ff26282a"
         text: control.model[control.headerView.textRole]
     }
-}
+}

@@ -38,4 +38,4 @@ Menu {
     UniversalImpl.SelectAllAction {
         editor: menu.editor
     }
-}
+}

@@ -42,4 +42,4 @@ T.MenuBar {
                                        Qt.lighter(Fusion.outline(control.palette), 1.4), 60)
         }
     }
-}
+}

@@ -38,4 +38,4 @@ T.ScrollView {
         width: control.width - (control.ScrollBar.vertical.visible ? control.ScrollBar.vertical.width : 0)
         active: control.ScrollBar.vertical.active
     }
-}
+}

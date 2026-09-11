@@ -9,4 +9,4 @@ NativeStyle.DefaultRadioDelegate {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

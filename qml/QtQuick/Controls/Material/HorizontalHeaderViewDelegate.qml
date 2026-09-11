@@ -29,4 +29,4 @@ T.HeaderViewDelegate {
                        : control.Material.hintTextColor
         text: control.model[control.headerView.textRole]
     }
-}
+}

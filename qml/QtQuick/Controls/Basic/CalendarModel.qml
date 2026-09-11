@@ -3,4 +3,4 @@
 
 import QtQuick.Templates as T
 
-T.CalendarModel {}
+T.CalendarModel {}

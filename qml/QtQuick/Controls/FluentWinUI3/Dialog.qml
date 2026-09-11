@@ -94,4 +94,4 @@ T.Dialog {
     T.Overlay.modeless: Rectangle {
         color: "transparent"
     }
-}
+}

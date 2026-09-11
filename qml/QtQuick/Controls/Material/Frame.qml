@@ -30,4 +30,4 @@ T.Frame {
             roundedScale: control.background.radius
         }
     }
-}
+}

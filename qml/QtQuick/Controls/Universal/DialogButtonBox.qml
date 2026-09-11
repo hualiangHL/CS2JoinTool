@@ -40,4 +40,4 @@ T.DialogButtonBox {
         width: parent.width - 2
         height: parent.height - 2
     }
-}
+}

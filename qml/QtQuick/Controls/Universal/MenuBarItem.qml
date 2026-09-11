@@ -54,4 +54,4 @@ T.MenuBarItem {
             opacity: control.Universal.theme === Universal.Light ? 0.4 : 0.6
         }
     }
-}
+}

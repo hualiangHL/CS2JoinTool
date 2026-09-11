@@ -20,4 +20,4 @@ T.SplitView {
         border.color: control.palette.dark
         border.width: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast ? 1 : 0
     }
-}
+}

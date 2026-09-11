@@ -35,4 +35,4 @@ Item {
         active: root.handlePressed || root.handleHasFocus || (enabled && root.handleHovered)
         color: root.control ? root.control.Material.highlightedRippleColor : "transparent"
     }
-}
+}

@@ -38,4 +38,4 @@ T.HeaderViewDelegate {
         verticalAlignment: Text.AlignVCenter
         text: control.model[control.headerView.textRole]
     }
-}
+}

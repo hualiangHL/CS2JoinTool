@@ -21,4 +21,4 @@ T.MenuSeparator {
         implicitHeight: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast ? 2 : 1
         color: control.palette.mid
     }
-}
+}

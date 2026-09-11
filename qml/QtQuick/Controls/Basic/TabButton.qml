@@ -38,4 +38,4 @@ T.TabButton {
         border.width: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast ? 1 : 0
         border.color: control.palette.windowText
     }
-}
+}

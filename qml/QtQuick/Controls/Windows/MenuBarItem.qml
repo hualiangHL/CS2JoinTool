@@ -44,4 +44,4 @@ T.MenuBarItem {
         radius: 4
         visible: control.down || control.highlighted
     }
-}
+}

@@ -20,4 +20,4 @@ T.MenuSeparator {
         implicitHeight: 1
         color: control.Material.dividerColor
     }
-}
+}

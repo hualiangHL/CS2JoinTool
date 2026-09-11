@@ -18,4 +18,4 @@ T.Pane {
     background: Rectangle {
         color: control.Universal.background
     }
-}
+}

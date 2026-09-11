@@ -98,4 +98,4 @@ ColorImage {
             color: indicator.__indicatorColor
         }
     }
-}
+}

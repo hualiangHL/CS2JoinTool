@@ -51,4 +51,4 @@ T.TextArea {
         elide: Text.ElideRight
         renderType: control.renderType
     }
-}
+}

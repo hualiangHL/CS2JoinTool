@@ -106,4 +106,4 @@ Rectangle {
             ? "transparent" : buttonBackground.defaultStrokeColor
         color: buttonBackground.backgroundColor
     }
-}
+}

@@ -70,4 +70,4 @@ T.RangeSlider {
             color: control.palette.dark
         }
     }
-}
+}

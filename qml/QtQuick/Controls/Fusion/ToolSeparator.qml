@@ -30,4 +30,4 @@ T.ToolSeparator {
             color: Qt.lighter(control.palette.window, 1.1)
         }
     }
-}
+}

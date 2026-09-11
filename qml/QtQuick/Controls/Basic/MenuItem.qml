@@ -70,4 +70,4 @@ T.MenuItem {
         border.color: control.palette.dark
         border.width: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast && control.highlighted ? 1 : 0
     }
-}
+}

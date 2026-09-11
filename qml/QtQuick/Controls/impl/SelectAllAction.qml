@@ -13,4 +13,4 @@ T.Action {
     onTriggered: editor.selectAll()
 
     required property Item editor
-}
+}

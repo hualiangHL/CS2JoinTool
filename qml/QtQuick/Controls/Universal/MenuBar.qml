@@ -32,4 +32,4 @@ T.MenuBar {
         implicitHeight: 40
         color: control.Universal.chromeMediumColor
     }
-}
+}

@@ -54,4 +54,4 @@ T.Dialog {
     T.Overlay.modeless: Rectangle {
         color: control.Universal.baseLowColor
     }
-}
+}

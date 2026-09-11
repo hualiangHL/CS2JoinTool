@@ -73,4 +73,4 @@ T.RangeSlider {
             color: control.enabled ? control.Universal.accent : control.Universal.chromeDisabledHighColor
         }
     }
-}
+}

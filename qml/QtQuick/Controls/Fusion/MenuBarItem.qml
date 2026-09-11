@@ -42,4 +42,4 @@ T.MenuBarItem {
         color: Fusion.highlight(control.palette)
         visible: control.down || control.highlighted
     }
-}
+}

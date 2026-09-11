@@ -30,4 +30,4 @@ T.StackView {
     replaceExit: Transition {
         XAnimator { from: 0; to: (control.mirrored ? -1 : 1) * -control.width; duration: 400; easing.type: Easing.OutCubic }
     }
-}
+}

@@ -42,4 +42,4 @@ T.ItemDelegate {
         border.width: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast ? 1 : 0
         border.color: control.highlighted ? control.palette.highlight : control.palette.text
     }
-}
+}

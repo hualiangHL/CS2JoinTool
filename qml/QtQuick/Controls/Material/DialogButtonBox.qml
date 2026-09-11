@@ -44,4 +44,4 @@ T.DialogButtonBox {
         bottomPadding: control.position === T.DialogButtonBox.Header ? -radius : 0
         clip: true
     }
-}
+}

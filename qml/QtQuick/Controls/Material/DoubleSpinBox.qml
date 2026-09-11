@@ -122,4 +122,4 @@ T.DoubleSpinBox {
         controlHasText: true
         horizontalPadding: control.Material.textFieldHorizontalPadding
     }
-}
+}

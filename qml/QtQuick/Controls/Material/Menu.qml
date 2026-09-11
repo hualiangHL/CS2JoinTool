@@ -73,4 +73,4 @@ T.Menu {
         color: control.Material.backgroundDimColor
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
-}
+}

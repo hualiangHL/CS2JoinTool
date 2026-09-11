@@ -51,4 +51,4 @@ T.DialogButtonBox {
             topRightRadius: 0
         }
     }
-}
+}

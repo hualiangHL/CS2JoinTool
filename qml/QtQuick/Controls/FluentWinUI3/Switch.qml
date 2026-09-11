@@ -58,4 +58,4 @@ T.Switch {
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
     }
-}
+}

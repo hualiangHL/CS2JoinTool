@@ -38,4 +38,4 @@ Menu {
     FusionImpl.SelectAllAction {
         editor: menu.editor
     }
-}
+}

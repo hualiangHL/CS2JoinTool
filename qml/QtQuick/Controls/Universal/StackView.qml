@@ -40,4 +40,4 @@ T.StackView {
     replaceExit: Transition {
         NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 200; easing.type: Easing.OutQuint }
     }
-}
+}

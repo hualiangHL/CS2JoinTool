@@ -109,4 +109,4 @@ T.DoubleSpinBox {
             return enabled ? control.palette.text : control.palette.mid
         }
     }
-}
+}

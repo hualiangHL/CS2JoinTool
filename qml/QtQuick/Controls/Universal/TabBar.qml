@@ -34,4 +34,4 @@ T.TabBar {
         implicitHeight: 48
         color: control.Universal.background
     }
-}
+}

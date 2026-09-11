@@ -61,4 +61,4 @@ T.SwitchDelegate {
             color: control.Material.rippleColor
         }
     }
-}
+}

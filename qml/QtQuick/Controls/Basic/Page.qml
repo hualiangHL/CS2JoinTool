@@ -20,4 +20,4 @@ T.Page {
     background: Rectangle {
         color: control.palette.window
     }
-}
+}

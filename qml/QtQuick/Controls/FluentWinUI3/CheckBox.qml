@@ -62,4 +62,4 @@ T.CheckBox {
     background: Impl.StyleImage {
         imageConfig: control.__config.background
     }
-}
+}

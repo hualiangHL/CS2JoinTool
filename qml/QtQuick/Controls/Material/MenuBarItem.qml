@@ -52,4 +52,4 @@ T.MenuBarItem {
             color: control.Material.rippleColor
         }
     }
-}
+}

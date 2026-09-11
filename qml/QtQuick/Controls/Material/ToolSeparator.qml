@@ -21,4 +21,4 @@ T.ToolSeparator {
         implicitHeight: control.vertical ? 38 : 1
         color: control.Material.hintTextColor
     }
-}
+}

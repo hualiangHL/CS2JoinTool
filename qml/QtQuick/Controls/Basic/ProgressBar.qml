@@ -30,4 +30,4 @@ T.ProgressBar {
 
         color: control.palette.midlight
     }
-}
+}

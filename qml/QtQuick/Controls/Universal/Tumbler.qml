@@ -44,4 +44,4 @@ T.Tumbler {
 
         property real delegateHeight: control.availableHeight / control.visibleItemCount
     }
-}
+}

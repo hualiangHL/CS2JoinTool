@@ -47,4 +47,4 @@ T.CheckBox {
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
     }
-}
+}

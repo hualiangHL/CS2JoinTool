@@ -38,4 +38,4 @@ Menu {
     FluentWinUI3Impl.SelectAllAction {
         editor: menu.editor
     }
-}
+}

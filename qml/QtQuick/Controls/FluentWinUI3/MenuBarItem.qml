@@ -65,4 +65,4 @@ T.MenuBarItem {
         subtle: (!control.checked || control.flat) && Application.styleHints.accessibility.contrastPreference !== Qt.HighContrast
         accented: control.checked
     }
-}
+}

@@ -74,4 +74,4 @@ T.RadioDelegate {
         visible: control.down || control.highlighted
         color: control.down ? control.palette.midlight : control.palette.light
     }
-}
+}

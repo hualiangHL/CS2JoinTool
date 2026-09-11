@@ -45,4 +45,4 @@ Item {
             SmoothedAnimation { velocity: 200 }
         }
     }
-}
+}

@@ -21,4 +21,4 @@ T.ToolSeparator {
         implicitHeight: control.vertical ? 30 : (Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast ? 2 : 1)
         color: control.palette.mid
     }
-}
+}

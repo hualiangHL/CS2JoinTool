@@ -51,4 +51,4 @@ T.ScrollBar {
         opacity: control.contentItem.opacity
         color: control.palette.mid
     }
-}
+}

@@ -33,4 +33,4 @@ T.MenuBar {
         implicitHeight: 40
         color: control.Material.dialogColor
     }
-}
+}

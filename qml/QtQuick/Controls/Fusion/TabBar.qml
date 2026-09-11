@@ -43,4 +43,4 @@ T.TabBar {
             color: Fusion.outline(control.palette)
         }
     }
-}
+}

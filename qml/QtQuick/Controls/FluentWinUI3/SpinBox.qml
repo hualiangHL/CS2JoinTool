@@ -142,4 +142,4 @@ T.SpinBox {
             radius: control.__config.background.bottomOffset
         }
     }
-}
+}

@@ -23,4 +23,4 @@ T.MenuSeparator {
         implicitHeight: 1
         color: Fusion.highContrast ? Fusion.outline(control.palette) : Qt.lighter(Fusion.darkShade, 1.06)
     }
-}
+}

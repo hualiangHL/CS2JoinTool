@@ -120,4 +120,4 @@ T.DoubleSpinBox {
             ]
         }
     }
-}
+}

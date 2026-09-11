@@ -17,4 +17,4 @@ T.HorizontalHeaderView {
     implicitHeight: Math.max(1, contentHeight)
 
     delegate: HorizontalHeaderViewDelegate { }
-}
+}

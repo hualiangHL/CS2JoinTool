@@ -148,4 +148,4 @@ T.SpinBox {
             radius: 1.7
         }
     }
-}
+}

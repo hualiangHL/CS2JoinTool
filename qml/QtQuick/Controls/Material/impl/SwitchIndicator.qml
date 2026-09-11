@@ -98,4 +98,4 @@ Rectangle {
             visible: handle.hasIcon
         }
     }
-}
+}

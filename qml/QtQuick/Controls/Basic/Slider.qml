@@ -55,4 +55,4 @@ T.Slider {
             color: control.palette.dark
         }
     }
-}
+}

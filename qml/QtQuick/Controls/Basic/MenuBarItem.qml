@@ -43,4 +43,4 @@ T.MenuBarItem {
         border.width: Qt.styleHints.accessibility.contrastPreference === Qt.HighContrast &&
                       control.highlighted ? 1 : 0
     }
-}
+}

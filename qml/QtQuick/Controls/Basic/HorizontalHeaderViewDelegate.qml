@@ -29,4 +29,4 @@ T.HeaderViewDelegate {
         color: control.palette.windowText
         text: control.model[control.headerView.textRole]
     }
-}
+}

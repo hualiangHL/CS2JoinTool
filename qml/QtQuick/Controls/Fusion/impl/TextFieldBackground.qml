@@ -32,4 +32,4 @@ Rectangle {
         height: 1
         color: Fusion.topShadow
     }
-}
+}

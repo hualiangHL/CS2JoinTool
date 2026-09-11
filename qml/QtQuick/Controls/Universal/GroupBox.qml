@@ -39,4 +39,4 @@ T.GroupBox {
         color: "transparent"
         border.color: control.Universal.chromeDisabledLowColor
     }
-}
+}

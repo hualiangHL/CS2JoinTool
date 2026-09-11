@@ -29,4 +29,4 @@ Rectangle {
         
         onRunningChanged: cursor.opacity = 1
     }
-}
+}

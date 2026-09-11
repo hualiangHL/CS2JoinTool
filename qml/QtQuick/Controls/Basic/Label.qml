@@ -10,4 +10,4 @@ T.Label {
 
     color: control.palette.windowText
     linkColor: control.palette.link
-}
+}

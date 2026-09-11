@@ -40,4 +40,4 @@ T.GroupBox {
         color: Color.transparent("black", 3 / 255)
         border.color: Qt.lighter(Fusion.outline(control.palette), 1.08)
     }
-}
+}

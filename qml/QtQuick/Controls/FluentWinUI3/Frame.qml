@@ -41,4 +41,4 @@ T.Frame {
             imageConfig: control.__config.background
         }
     }
-}
+}

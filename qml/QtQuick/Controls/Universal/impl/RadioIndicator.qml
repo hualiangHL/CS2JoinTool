@@ -44,4 +44,4 @@ Rectangle {
                 indicator.control.down ? indicator.control.Universal.baseMediumColor :
                 indicator.control.hovered ? indicator.control.Universal.baseHighColor : indicator.control.Universal.baseMediumHighColor
     }
-}
+}

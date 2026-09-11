@@ -17,4 +17,4 @@ T.VerticalHeaderView {
     implicitHeight: syncView ? syncView.height : 0
 
     delegate: VerticalHeaderViewDelegate { }
-}
+}

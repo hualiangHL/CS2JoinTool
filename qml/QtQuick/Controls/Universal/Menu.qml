@@ -46,4 +46,4 @@ T.Menu {
     T.Overlay.modeless: Rectangle {
         color: control.Universal.baseLowColor
     }
-}
+}

@@ -58,4 +58,4 @@ T.Menu {
     T.Overlay.modeless: Rectangle {
         color: Fusion.topShadow
     }
-}
+}

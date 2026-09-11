@@ -44,4 +44,4 @@ NativeStyle.DefaultButton {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

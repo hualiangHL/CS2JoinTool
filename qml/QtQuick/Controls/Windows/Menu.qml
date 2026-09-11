@@ -75,4 +75,4 @@ T.Menu {
     T.Overlay.modeless: Rectangle {
         color: "transparent"
     }
-}
+}

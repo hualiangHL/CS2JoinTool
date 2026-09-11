@@ -64,4 +64,4 @@ T.SwipeDelegate {
                 : "transparent"
         color: Qt.tint(control.palette.window, bakcgroundColorTint)
     }
-}
+}

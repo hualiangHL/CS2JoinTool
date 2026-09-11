@@ -18,4 +18,4 @@ T.ApplicationWindow {
         height: parent ? parent.height : 0
         visible: parent && !!parent.useSystemFocusVisuals && !!parent.visualFocus
     }
-}
+}

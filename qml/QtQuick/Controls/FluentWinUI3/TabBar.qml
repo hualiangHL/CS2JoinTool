@@ -50,4 +50,4 @@ T.TabBar {
     background: Impl.StyleImage {
         imageConfig: control.__config.background
     }
-}
+}

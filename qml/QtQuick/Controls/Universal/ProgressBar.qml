@@ -32,4 +32,4 @@ T.ProgressBar {
         visible: !control.indeterminate
         color: control.Universal.baseLowColor
     }
-}
+}

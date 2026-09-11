@@ -37,4 +37,4 @@ Menu {
     WindowsImpl.SelectAllAction {
         editor: menu.editor
     }
-}
+}

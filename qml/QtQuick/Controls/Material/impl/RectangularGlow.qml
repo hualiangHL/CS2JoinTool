@@ -65,4 +65,4 @@ Item {
 
         fragmentShader: "qrc:/qt-project.org/imports/QtQuick/Controls/Material/shaders/RectangularGlow.frag.qsb"
     }
-}
+}

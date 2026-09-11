@@ -64,4 +64,4 @@ T.CheckBox {
         font: control.font
         color: control.palette.windowText
     }
-}
+}

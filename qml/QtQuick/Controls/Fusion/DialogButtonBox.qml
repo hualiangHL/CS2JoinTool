@@ -45,4 +45,4 @@ T.DialogButtonBox {
             radius: 2
         }
     }
-}
+}

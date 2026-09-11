@@ -84,4 +84,4 @@ T.Dialog {
         color: control.Material.backgroundDimColor
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
-}
+}

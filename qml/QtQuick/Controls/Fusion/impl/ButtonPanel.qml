@@ -43,4 +43,4 @@ Rectangle {
         color: "transparent"
         radius: 2
     }
-}
+}

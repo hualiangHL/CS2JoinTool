@@ -109,4 +109,4 @@ NativeStyle.DefaultSearchField {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

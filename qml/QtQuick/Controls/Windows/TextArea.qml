@@ -11,4 +11,4 @@ NativeStyle.DefaultTextArea {
     ContextMenu.menu: WindowsImpl.TextEditingContextMenu {
         editor: control
     }
-}
+}

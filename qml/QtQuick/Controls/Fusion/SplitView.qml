@@ -25,4 +25,4 @@ T.SplitView {
                                              : (enabled && T.SplitHandle.hovered ? control.palette.midlight : control.palette.mid)
         }
     }
-}
+}

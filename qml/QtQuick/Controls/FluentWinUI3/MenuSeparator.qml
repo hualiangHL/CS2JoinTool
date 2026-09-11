@@ -20,4 +20,4 @@ T.MenuSeparator {
         implicitHeight: 1
         color: Application.styleHints.colorScheme === Qt.Light ? "#0F000000" : "#15FFFFFF"
     }
-}
+}

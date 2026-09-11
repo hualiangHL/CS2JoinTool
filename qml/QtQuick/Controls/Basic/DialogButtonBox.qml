@@ -37,4 +37,4 @@ T.DialogButtonBox {
         height: parent.height - 2
         color: control.palette.window
     }
-}
+}

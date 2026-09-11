@@ -72,4 +72,4 @@ T.Dialog {
     T.Overlay.modeless: Rectangle {
         color: Fusion.topShadow
     }
-}
+}

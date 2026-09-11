@@ -53,4 +53,4 @@ T.RoundButton {
         border.width: control.visualFocus ? 2 :
                       (Qt.styleHints.accessibility.contrastPreference == Qt.HighContrast) ? 1 : 0
     }
-}
+}

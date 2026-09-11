@@ -39,4 +39,4 @@ T.ScrollIndicator {
             }
         ]
     }
-}
+}

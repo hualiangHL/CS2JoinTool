@@ -34,4 +34,4 @@ T.BusyIndicator {
             loops: Animation.Infinite
         }
     }
-}
+}

@@ -98,4 +98,4 @@ T.SpinBox {
     background: Item {
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

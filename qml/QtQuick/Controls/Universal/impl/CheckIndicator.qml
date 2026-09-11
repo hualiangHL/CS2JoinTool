@@ -45,4 +45,4 @@ Rectangle {
         border.width: indicator.partiallyChecked ? 0 : 2 
         border.color: indicator.control.Universal.baseMediumLowColor
     }
-}
+}

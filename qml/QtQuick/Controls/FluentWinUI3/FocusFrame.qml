@@ -54,4 +54,4 @@ Rectangle {
         border.color: Application.styleHints.colorScheme === Qt.Light ? "white" : "black"
         border.width: innerFrameSize
     }
-}
+}

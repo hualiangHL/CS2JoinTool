@@ -99,4 +99,4 @@ T.DoubleSpinBox {
     background: Item {
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

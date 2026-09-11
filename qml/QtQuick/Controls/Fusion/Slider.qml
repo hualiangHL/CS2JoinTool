@@ -31,4 +31,4 @@ T.Slider {
         progress: control.position
         visualProgress: control.visualPosition
     }
-}
+}

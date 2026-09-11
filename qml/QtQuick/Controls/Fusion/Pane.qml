@@ -20,4 +20,4 @@ T.Pane {
     background: Rectangle {
         color: control.palette.window
     }
-}
+}

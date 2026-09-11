@@ -34,4 +34,4 @@ T.Switch {
 
         readonly property bool __ignoreNotCustomizable: true
     }
-}
+}

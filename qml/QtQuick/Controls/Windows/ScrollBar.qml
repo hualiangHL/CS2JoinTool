@@ -97,4 +97,4 @@ NativeStyle.DefaultScrollBar {
         opacity: controlRoot.__increaseVisual.pressed ? 1 : 0
         useNinePatchImage: false
     }
-}
+}

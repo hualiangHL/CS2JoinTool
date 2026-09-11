@@ -21,4 +21,4 @@ T.Frame {
                       control.palette.mid : Color.blend(control.palette.dark, control.palette.base,
                                                         enabled ? 0.0 : 0.5)
     }
-}
+}

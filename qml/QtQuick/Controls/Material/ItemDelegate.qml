@@ -52,4 +52,4 @@ T.ItemDelegate {
             color: control.Material.rippleColor
         }
     }
-}
+}

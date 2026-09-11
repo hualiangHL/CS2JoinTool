@@ -43,4 +43,4 @@ Rectangle {
         border.color: Color.transparent(indicator.checkMarkColor, 200 / 255)
         visible: indicator.control.checked
     }
-}
+}
