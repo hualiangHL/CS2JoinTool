@@ -1,0 +1,33 @@
+
+
+
+import QtQuick
+import QtQuick.Controls.impl as ControlsImpl
+import QtQuick.Controls.Universal
+import QtQuick.Templates as T
+
+T.HeaderViewDelegate {
+    id: control
+
+    
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
+    padding: 8
+
+    highlighted: selected
+
+    background: Rectangle {
+        color: control.Universal.background
+    }
+
+    contentItem: Label {
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        color: ControlsImpl.Color.transparent(control.Universal.foreground,
+                                 enabled ? 1.0 : 0.2)
+        text: control.model[control.headerView.textRole]
+    }
+}

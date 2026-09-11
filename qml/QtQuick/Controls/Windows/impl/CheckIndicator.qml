@@ -1,0 +1,21 @@
+
+
+
+import QtQuick
+import QtQuick.Controls.impl
+
+Item {
+    id: indicator
+    implicitWidth: 14
+    implicitHeight: 10
+
+    property Item control
+
+    ColorImage {
+        y: (parent.height - height) / 2
+        color: control.palette.text
+        source: "qrc:/qt-project.org/imports/QtQuick/Controls/Windows/images/checkmark.png"
+        visible: indicator.control.checkState === Qt.Checked
+                 || (indicator.control.checked && indicator.control.checkState === undefined)
+    }
+}
