@@ -23,4 +23,3 @@ Rectangle {
         onClicked: if (cardRoot.hoverable) cardRoot.clicked()
     }
 }
-

@@ -26,4 +26,3 @@ Rectangle {
         background: Rectangle { color: "transparent" }
     }
 }
-

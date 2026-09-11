@@ -64,4 +64,3 @@ Rectangle {
         onClicked: if (buttonRoot.enabled && !buttonRoot.loading) buttonRoot.clicked()
     }
 }
-
