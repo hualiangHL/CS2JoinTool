@@ -1449,4 +1449,3 @@ ApplicationWindow {
         }
     }
 }
-
