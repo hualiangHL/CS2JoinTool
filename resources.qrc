@@ -1,0 +1,33 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Main.qml</file>
+        <file>qml/qmldir</file>
+        <file>qml/Theme.qml</file>
+        <file>qml/StaggerItem.qml</file>
+        <file>qml/components/EButton.qml</file>
+        <file>qml/components/EInput.qml</file>
+        <file>qml/components/ECard.qml</file>
+        <file>qml/components/ESwitch.qml</file>
+        <file>qml/components/ESlider.qml</file>
+        <file>qml/components/ServerCard.qml</file>
+        <file>qml/components/StatusBadge.qml</file>
+        <file>qml/components/EDrawer.qml</file>
+        <file>qml/components/ETooltip.qml</file>
+        <file>qml/pages/HomePage.qml</file>
+        <file>qml/pages/ServerListPage.qml</file>
+        <file>qml/pages/CooldownPage.qml</file>
+        <file>qml/pages/SubscriptionPage.qml</file>
+        <file>qml/pages/WorkshopPage.qml</file>
+        <file>qml/pages/SettingsPage.qml</file>
+        <file>qml/pages/AboutPage.qml</file>
+        <file>assets/icon.png</file>
+        <file>assets/app_icon.png</file>
+        <file>assets/app_icon_128.png</file>
+        <file>assets/app_icon_64.png</file>
+        <file>assets/notify_icon.png</file>
+        <file>shaders/roundcorner.frag.qsb</file>
+        <file>assets/bg.jpg</file>
+        <file>assets/bg1.jpg</file>
+        <file>assets/bg2.jpg</file>
+    </qresource>
+</RCC>

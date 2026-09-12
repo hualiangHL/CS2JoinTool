@@ -1,0 +1,51 @@
+# 编译产物
+build/
+*.exe
+*.dll
+*.o
+*.obj
+*.a
+*.lib
+
+# Qt 运行库和插件
+Qt6*.dll
+libgcc_*.dll
+libstdc++*.dll
+libwinpthread*.dll
+dxcompiler.dll
+dxil.dll
+platforms/
+iconengines/
+imageformats/
+networkinformation/
+qmltooling/
+tls/
+generic/
+shaders/
+
+# 用户数据和截图
+其他文件/
+*.log
+*.png
+*.jpg
+*.jpeg
+!assets/*.png
+!assets/*.jpg
+
+# 临时脚本
+convert_bg.py
+fix_bg.py
+toast.ps1
+strip_comments.py
+recategorize_commits.ps1
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.user.*
+
+# 系统
+Thumbs.db
+desktop.ini
+.DS_Store

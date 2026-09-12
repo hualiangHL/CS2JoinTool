@@ -1,0 +1,183 @@
+#include <QApplication>
+#include <QScreen>
+#include <QTimer>
+#include <QQuickWindow>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickStyle>
+#include <QIcon>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
+#include <QEvent>
+#include <QSharedMemory>
+#include <QLocalSocket>
+
+#include "src/appcontroller.h"
+#include "src/serverquery.h"
+#include "src/servermanager.h"
+#include "src/mapcooldownmanager.h"
+#include "src/mapsubscriptionmanager.h"
+#include "src/workshopmanager.h"
+#include "src/ubservermanager.h"
+#include "src/playerquery.h"
+
+#ifdef Q_OS_WIN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
+static QFile *g_logFile = nullptr;
+
+// 全局拦截 ContextMenu 事件，杜绝任何原生白色右键菜单
+class ContextMenuBlocker : public QObject {
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override {
+        if (event->type() == QEvent::ContextMenu) {
+            event->accept();
+            return true;
+        }
+        return QObject::eventFilter(obj, event);
+    }
+};
+
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    Q_UNUSED(context);
+    if (!g_logFile) return;
+    QTextStream out(g_logFile);
+    QString prefix;
+    switch (type) {
+    case QtDebugMsg: prefix = "[DEBUG]"; break;
+    case QtWarningMsg: prefix = "[WARN]"; break;
+    case QtCriticalMsg: prefix = "[CRIT]"; break;
+    case QtFatalMsg: prefix = "[FATAL]"; break;
+    default: prefix = "[INFO]"; break;
+    }
+    out << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << " " << prefix << " " << msg << "\n";
+    out.flush();
+}
+
+int main(int argc, char *argv[])
+{
+    g_logFile = new QFile(QDir::tempPath() + "/cs2join_debug.log");
+    g_logFile->open(QIODevice::WriteOnly | QIODevice::Truncate);
+    qInstallMessageHandler(messageHandler);
+
+    // 强制 OpenGL 后端，用于 afterRendering 圆角裁剪
+    qputenv("QSG_RHI_BACKEND", "opengl");
+
+    // 高 DPI 适配：精确缩放因子，避免非整数缩放导致模糊
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+
+    QApplication app(argc, argv);
+    app.setApplicationName("CS2挤服工具");
+    app.setApplicationVersion("4.0.0");
+    app.setOrganizationName("CS2JoinTool");
+
+#ifdef Q_OS_WIN
+    {
+        HMODULE hShell32 = LoadLibraryW(L"shell32.dll");
+        if (hShell32) {
+            typedef HRESULT(WINAPI *SetAppID_t)(PCWSTR);
+            SetAppID_t pFn = (SetAppID_t)GetProcAddress(hShell32, "SetCurrentProcessExplicitAppUserModelID");
+            if (pFn) {
+                pFn(L"CS2JoinTool.V4.Notification");
+            }
+            FreeLibrary(hShell32);
+        }
+    }
+#endif
+
+    QSharedMemory singleInstance("CS2JoinTool_SingleInstance_Lock");
+    bool instanceAlive = false;
+    if (singleInstance.attach()) {
+        QLocalSocket verifySocket;
+        verifySocket.connectToServer("CS2JoinTool_ActivatePipe", QIODevice::WriteOnly);
+        if (verifySocket.waitForConnected(500)) {
+            verifySocket.write("activate");
+            verifySocket.waitForBytesWritten(500);
+            verifySocket.disconnectFromServer();
+            instanceAlive = true;
+            qDebug() << "[SingleInstance] existing instance verified alive, activating";
+        } else {
+            singleInstance.detach();
+            qDebug() << "[SingleInstance] stale shared memory from crashed instance, cleaned up";
+        }
+    }
+    if (instanceAlive) return 0;
+    if (!singleInstance.create(1)) {
+        singleInstance.detach();
+        if (!singleInstance.create(1)) {
+            qWarning() << "[SingleInstance] failed to create shared memory";
+            return 0;
+        }
+    }
+
+    ContextMenuBlocker menuBlocker;
+    app.installEventFilter(&menuBlocker);
+
+    QQuickStyle::setStyle("Basic");
+
+    qmlRegisterType<ServerQuery>("CS2JoinTool", 1, 0, "ServerQuery");
+    qmlRegisterType<ServerListModel>("CS2JoinTool", 1, 0, "ServerListModel");
+
+    AppController controller;
+    ServerManager serverManager;
+    MapCooldownManager cooldownManager;
+    MapSubscriptionManager subscriptionManager;
+    WorkshopManager workshopManager;
+    UBServerManager ubManager;
+    PlayerQuery playerQuery;
+
+    QQmlApplicationEngine engine;
+    engine.addImportPath("qrc:/");
+    engine.rootContext()->setContextProperty("appController", &controller);
+    engine.rootContext()->setContextProperty("serverManager", &serverManager);
+    engine.rootContext()->setContextProperty("cooldownManager", &cooldownManager);
+    engine.rootContext()->setContextProperty("subscriptionManager", &subscriptionManager);
+    engine.rootContext()->setContextProperty("workshopManager", &workshopManager);
+    engine.rootContext()->setContextProperty("ubManager", &ubManager);
+    engine.rootContext()->setContextProperty("playerQuery", &playerQuery);
+
+    QObject::connect(&serverManager, &ServerManager::serverMapUpdated,
+                     &subscriptionManager, &MapSubscriptionManager::checkServerMap);
+    // 订阅地图通知 → 程序内右下角通知
+    QObject::connect(&subscriptionManager, &MapSubscriptionManager::notificationRequested,
+                     &controller, &AppController::showToastNotification);
+    QString appDir = QCoreApplication::applicationDirPath();
+    appDir.replace("\\", "/");
+    engine.rootContext()->setContextProperty("appDir", appDir);
+
+    const QUrl url(QStringLiteral("qrc:/qml/Main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+
+    engine.load(url);
+
+    // 设置窗口图标
+    app.setWindowIcon(QIcon(":/assets/app_icon.png"));
+
+    // 窗口居中显示（适配不同分辨率和 DPI）
+    QTimer::singleShot(0, [&engine]() {
+        QObject *root = engine.rootObjects().value(0);
+        QQuickWindow *window = qobject_cast<QQuickWindow *>(root);
+        if (window) {
+            QScreen *screen = window->screen();
+            if (!screen) screen = QGuiApplication::primaryScreen();
+            QRect available = screen->availableGeometry();
+            int x = available.x() + (available.width() - window->width()) / 2;
+            int y = available.y() + (available.height() - window->height()) / 2;
+            window->setPosition(x, y);
+        }
+    });
+
+    return app.exec();
+}
