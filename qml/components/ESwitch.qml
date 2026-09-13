@@ -5,7 +5,7 @@ Item {
     id: switchRoot
     property bool checked: false
     property string text: ""
-    signal toggled(bool checked)
+    signal toggled(bool newChecked)
 
     width: switchRow.implicitWidth
     height: 28
@@ -15,7 +15,7 @@ Item {
         spacing: App.Theme.spacingMd
         anchors.verticalCenter: parent.verticalCenter
 
-        // 开关轨道
+        
         Rectangle {
             width: 48
             height: 28
@@ -25,7 +25,7 @@ Item {
             border.color: switchRoot.checked ? "transparent" : "#30FFFFFF"
             Behavior on color { ColorAnimation { duration: App.Theme.durationNormal } }
 
-            // 滑块
+            
             Rectangle {
                 id: thumb
                 width: 22
@@ -60,8 +60,7 @@ Item {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            switchRoot.checked = !switchRoot.checked
-            switchRoot.toggled(switchRoot.checked)
+            switchRoot.toggled(!switchRoot.checked)
         }
     }
 }
