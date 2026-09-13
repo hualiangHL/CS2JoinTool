@@ -26,8 +26,8 @@ struct ExgServerInfo {
     int bots;
     QString map;
     QString mapDifficulty;
-    int status; // 0=checking, 1=online, 2=offline
-    qint64 mapChangedAt; // 地图切换时间戳（秒），0=未知
+    int status; 
+    qint64 mapChangedAt; 
 };
 
 class ServerListModel : public QAbstractListModel
@@ -96,7 +96,7 @@ public:
     int refreshCountdown() const { return m_refreshCountdown; }
 
     Q_INVOKABLE void refreshAll();
-    Q_INVOKABLE void joinServer(int index);
+    Q_INVOKABLE void joinServer(int index, int protocol = 0);
     Q_INVOKABLE void copyAddress(int index);
     Q_INVOKABLE QStringList communities();
     Q_INVOKABLE QVariantList communityServers(const QString &community);
@@ -134,7 +134,7 @@ private:
     bool m_refreshing;
     QString m_searchText;
     bool m_hideOffline = true;
-    int m_sortMode; // 0=default, 1=players desc, 2=players asc
+    int m_sortMode; 
     int m_pendingQueries;
     int m_modelVersion;
     BaServerTime *m_baTime;
@@ -151,4 +151,4 @@ private:
     void initCommunityOrder();
 };
 
-#endif // SERVERMANAGER_H
+#endif 
