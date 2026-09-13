@@ -22,7 +22,7 @@ WorkshopManager::WorkshopManager(QObject *parent)
     : QObject(parent)
 {
     loadMapDb();
-    // 加载保存的自定义工坊路径
+    
     QSettings ws(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/workshop.ini", QSettings::IniFormat);
     QString saved = ws.value("customWorkshopPath").toString();
     if (!saved.isEmpty() && QDir(saved).exists()) {
@@ -139,15 +139,15 @@ void WorkshopManager::scanLocalMaps()
                 QString mapDirPath = workshopDir + "/" + id;
                 QDir mapDir(mapDirPath);
 
-                // V3逻辑：没有vpk文件直接跳过
+                
                 QStringList vpkFiles = mapDir.entryList(QStringList() << "*.vpk", QDir::Files);
                 if (vpkFiles.isEmpty()) continue;
 
-                // 先用vpk文件名
+                
                 QString mapName = vpkFiles.first();
                 mapName.chop(4);
 
-                // 关键：读 publish_data.txt 里的 title（创意工坊名称）
+                
                 QFile publishFile(mapDirPath + "/publish_data.txt");
                 if (publishFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
                     QTextStream in(&publishFile);
@@ -172,7 +172,7 @@ void WorkshopManager::scanLocalMaps()
                 libMapCount[lib]++;
             }
         }
-        // 选地图最多的库作为主路径
+        
         QString bestLib;
         int bestCount = 0;
         for (auto it = libMapCount.begin(); it != libMapCount.end(); ++it) {
@@ -188,7 +188,7 @@ void WorkshopManager::scanLocalMaps()
         }
     }
 
-    // 按名称排序（V3逻辑）
+    
     std::sort(result.begin(), result.end(), [](const QVariant &a, const QVariant &b) {
         return a.toMap().value("name").toString().toLower() < b.toMap().value("name").toString().toLower();
     });
@@ -214,7 +214,7 @@ void WorkshopManager::refresh()
     emit scanningChanged();
     QTimer::singleShot(250, this, [this]() {
         loadMapDb();
-        // 如果有保存的自定义路径且存在，直接用它；否则自动检测
+        
         QSettings ws(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/workshop.ini", QSettings::IniFormat);
         QString saved = ws.value("customWorkshopPath").toString();
         if (!saved.isEmpty() && QDir(saved).exists()) {
@@ -234,10 +234,10 @@ void WorkshopManager::setCustomPath(const QString &path)
     if (path.isEmpty()) return;
     QString cleanPath = QDir::cleanPath(path);
 
-    // 如果是 Steam 库根目录，自动补全工坊路径
+    
     QDir dir(cleanPath);
     if (dir.exists() && !dir.exists("steamapps/workshop/content/730")) {
-        // 检查是否是库根（有 steamapps 目录）
+        
         if (dir.exists("steamapps")) {
             QString autoPath = cleanPath + "/steamapps/workshop/content/730";
             if (QDir(autoPath).exists()) {
@@ -252,7 +252,7 @@ void WorkshopManager::setCustomPath(const QString &path)
         qDebug() << "[Workshop] path does not exist, still updating display:" << cleanPath;
         m_maps.clear();
         m_primaryWorkshopPath = cleanPath;
-        // 保存自定义路径
+        
         QSettings ws(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/workshop.ini", QSettings::IniFormat);
         ws.setValue("customWorkshopPath", cleanPath);
         emit primaryWorkshopPathChanged();
@@ -268,7 +268,7 @@ void WorkshopManager::setCustomPath(const QString &path)
     QVariantList result;
     QSet<QString> addedIds;
 
-    // 先检查路径本身是否直接含 .vpk（单个工坊物品目录）
+    
     QStringList rootVpk = dir.entryList(QStringList() << "*.vpk", QDir::Files);
     if (!rootVpk.isEmpty()) {
         QString mapName = rootVpk.first();
@@ -294,7 +294,7 @@ void WorkshopManager::setCustomPath(const QString &path)
         result.append(map);
         qDebug() << "[Workshop] single item path, map:" << mapName;
     } else {
-        // 正常：路径下有多个工坊物品子目录
+        
         QStringList idDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         qDebug() << "[Workshop] scanning" << idDirs.size() << "subdirs in" << cleanPath;
         for (const QString &id : idDirs) {
@@ -337,7 +337,7 @@ void WorkshopManager::setCustomPath(const QString &path)
 
     m_maps = result;
     m_primaryWorkshopPath = cleanPath;
-    // 保存自定义路径
+    
     QSettings ws(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/workshop.ini", QSettings::IniFormat);
     ws.setValue("customWorkshopPath", cleanPath);
     emit primaryWorkshopPathChanged();
@@ -361,7 +361,7 @@ void WorkshopManager::openWeb(const QString &id)
 {
     if (id.isEmpty()) return;
     QString url = QString("https://steamcommunity.com/sharedfiles/filedetails/?id=%1").arg(id);
-    // 用 steam://openurl 协议在 Steam 客户端内置浏览器中打开
+    
     QDesktopServices::openUrl(QUrl(QString("steam://openurl/%1").arg(url)));
 }
 
@@ -381,27 +381,27 @@ void WorkshopManager::deleteMapAndRestartSteam(const QString &path)
     qDebug() << "[Workshop] deleting map at:" << path;
     if (path.isEmpty()) return;
 
-    // 删除地图目录
+    
     QDir mapDir(path);
     if (mapDir.exists()) {
         bool ok = mapDir.removeRecursively();
         qDebug() << "[Workshop] delete result:" << ok;
     }
 
-    // 刷新列表
+    
     QTimer::singleShot(300, this, [this]() {
         refresh();
     });
 
-    // 重启Steam
+    
     QString steamPath = findSteamPath();
     QString steamExe = steamPath + "/steam.exe";
     qDebug() << "[Workshop] restarting steam from:" << steamExe;
 
-    // 先关闭Steam
+    
     QProcess::startDetached("taskkill", QStringList() << "/F" << "/IM" << "steam.exe");
 
-    // 等2秒后重新启动Steam
+    
     QTimer::singleShot(2000, this, [steamExe]() {
         if (QFile::exists(steamExe)) {
             QProcess::startDetached(steamExe, QStringList());
@@ -414,12 +414,12 @@ QString WorkshopManager::findWorkshopId(const QString &mapName)
 {
     if (mapName.isEmpty()) return "";
     QString key = mapName.toLower();
-    // 1. 从 map_db.json 查找
+    
     if (m_mapDb.contains(key)) {
         qDebug() << "[Workshop] findWorkshopId from db:" << mapName << "->" << m_mapDb[key];
         return m_mapDb[key];
     }
-    // 2. 从已扫描的本地地图列表查找（匹配 vpkName 或 name）
+    
     for (const QVariant &v : m_maps) {
         QVariantMap m = v.toMap();
         QString vpk = m.value("vpkName").toString().toLower();
