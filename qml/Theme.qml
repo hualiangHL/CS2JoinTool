@@ -4,10 +4,10 @@ import QtQuick
 QtObject {
     id: theme
 
-    // ===== 主题切换 =====
+    
     property bool isDark: true
 
-    // ===== 颜色系统 =====
+    
     readonly property color darkBg: "#FF0F1117"
     readonly property color darkSurface: "#FF1A1D27"
     readonly property color darkSurfaceHover: "#FF242836"
@@ -49,7 +49,7 @@ QtObject {
     property color textSecondary: isDark ? darkTextSecondary : lightTextSecondary
     property color textDisabled: isDark ? darkTextDisabled : lightTextDisabled
 
-    // ===== 尺寸系统 =====
+    
     readonly property real radiusSm: 8
     readonly property real radiusMd: 12
     readonly property real radiusLg: 16
@@ -68,7 +68,7 @@ QtObject {
     readonly property real paddingLg: 20
     readonly property real paddingXl: 28
 
-    // ===== 字体 =====
+    
     readonly property string fontFamily: "Segoe UI, Microsoft YaHei, sans-serif"
     readonly property real fontXs: 11
     readonly property real fontSm: 12
@@ -78,20 +78,20 @@ QtObject {
     readonly property real font2xl: 24
     readonly property real font3xl: 32
 
-    // ===== 阴影 =====
+    
     readonly property color shadowColor: isDark ? "#000000" : "#1A1A2E"
     readonly property real shadowOpacity: isDark ? 0.4 : 0.08
     readonly property real shadowBlur: 20
     readonly property real shadowY: 4
 
-    // ===== 动画 =====
+    
     readonly property int durationFast: 150
     readonly property int durationNormal: 250
     readonly property int durationSlow: 400
     readonly property real springDamping: 0.7
     readonly property real springEpsilon: 0.01
 
-    // ===== 导航 =====
+    
     readonly property real navWidth: 220
     readonly property real titleBarHeight: 48
     readonly property real windowMinWidth: 960
