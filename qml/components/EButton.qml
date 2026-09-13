@@ -30,7 +30,7 @@ Rectangle {
 
     Behavior on color { ColorAnimation { duration: App.Theme.durationFast } }
 
-    // 发光效果
+    
 
     Row {
         anchors.centerIn: parent
