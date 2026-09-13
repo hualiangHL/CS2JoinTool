@@ -33,7 +33,6 @@
 
 static QFile *g_logFile = nullptr;
 
-// 全局拦截 ContextMenu 事件，杜绝任何原生白色右键菜单
 class ContextMenuBlocker : public QObject {
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override {
@@ -68,10 +67,10 @@ int main(int argc, char *argv[])
     g_logFile->open(QIODevice::WriteOnly | QIODevice::Truncate);
     qInstallMessageHandler(messageHandler);
 
-    // 强制 OpenGL 后端，用于 afterRendering 圆角裁剪
+    
     qputenv("QSG_RHI_BACKEND", "opengl");
 
-    // 高 DPI 适配：精确缩放因子，避免非整数缩放导致模糊
+    
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 
     QApplication app(argc, argv);
@@ -146,9 +145,17 @@ int main(int argc, char *argv[])
 
     QObject::connect(&serverManager, &ServerManager::serverMapUpdated,
                      &subscriptionManager, &MapSubscriptionManager::checkServerMap);
-    // 订阅地图通知 → 程序内右下角通知
+    
     QObject::connect(&subscriptionManager, &MapSubscriptionManager::notificationRequested,
                      &controller, &AppController::showToastNotification);
+    QObject::connect(&serverManager, &ServerManager::serverJoined,
+                     [&controller](const QString &ip, int port, const QString &serverName) {
+        Q_UNUSED(ip); Q_UNUSED(port);
+        if (controller.joinNotificationEnabled()) {
+            controller.showToastNotification("加入服务器成功",
+                QString("服务器：%1\n已发送连接请求，正在进入游戏...").arg(serverName));
+        }
+    });
     QString appDir = QCoreApplication::applicationDirPath();
     appDir.replace("\\", "/");
     engine.rootContext()->setContextProperty("appDir", appDir);
@@ -162,10 +169,10 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-    // 设置窗口图标
+    
     app.setWindowIcon(QIcon(":/assets/app_icon.png"));
 
-    // 窗口居中显示（适配不同分辨率和 DPI）
+    
     QTimer::singleShot(0, [&engine]() {
         QObject *root = engine.rootObjects().value(0);
         QQuickWindow *window = qobject_cast<QQuickWindow *>(root);
