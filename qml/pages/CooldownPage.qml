@@ -31,7 +31,7 @@ Rectangle {
         if (mapData && mapData.enName) loadWorkshopMapPreview(mapData.enName)
     }
 
-    // 从Steam创意工坊获取地图预览图
+    
     function loadWorkshopMapPreview(mapName) {
         workshopPreviewUrl = ""
         currentPreviewMap = mapName
@@ -90,7 +90,7 @@ Rectangle {
         anchors.margins: 20
         spacing: 12
 
-        // 标题
+        
         Text {
             text: "ExG冷却时间"
             font.family: App.Theme.fontFamily
@@ -105,7 +105,7 @@ Rectangle {
             font.pixelSize: 12
         }
 
-        // 工具栏（跟服务器列表同款：36px高，单层控件）
+        
         RowLayout {
             id: staggerChild1
             opacity: showCard1 ? 1 : 0
@@ -113,7 +113,7 @@ Rectangle {
             width: mainCol.width
             spacing: 8
 
-            // 搜索框
+            
             TextField {
                 Layout.fillWidth: true
                 implicitHeight: 36
@@ -126,7 +126,7 @@ Rectangle {
                 placeholderTextColor: "#607080"
             }
 
-            // 只显示冷却中
+            
             Rectangle {
                 Layout.preferredWidth: 110
                 implicitHeight: 36
@@ -150,7 +150,7 @@ Rectangle {
                 }
             }
 
-            // 数量
+            
             Text {
                 Layout.preferredWidth: 100
                 text: cooldownManager.error ? cooldownManager.error : (cooldownManager.loading ? "加载中..." : "共 " + cooldownManager.filteredMaps.length + " 张")
@@ -160,7 +160,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
 
-            // 刷新按钮
+            
             Rectangle {
                 Layout.preferredWidth: 96
                 implicitHeight: 36
@@ -181,7 +181,7 @@ Rectangle {
             }
         }
 
-        // 地图列表
+        
         Item {
             id: staggerChild2
             opacity: showCard2 ? 1 : 0
@@ -327,7 +327,7 @@ Rectangle {
         }
     }
 
-    // ===== 地图详情面板 =====
+    
     Rectangle {
         id: detailMask
         anchors.fill: parent
@@ -351,7 +351,7 @@ Rectangle {
             Behavior on opacity { NumberAnimation { duration: showMapDetail ? 300 : 220; easing.type: showMapDetail ? Easing.OutCubic : Easing.InCubic } }
             Behavior on scale { NumberAnimation { duration: showMapDetail ? 320 : 220; easing.type: showMapDetail ? Easing.OutBack : Easing.InCubic } }
 
-            // 关闭按钮
+            
             Rectangle {
                 id: closeBtn
                 width: 28; height: 28; radius: 14
@@ -363,7 +363,7 @@ Rectangle {
                 Text { anchors.centerIn: parent; text: "✕"; color: "#FFFFFF"; font.pixelSize: 14 }
             }
 
-            // 地图预览图（左侧）
+            
             Rectangle {
                 id: previewContainer
                 width: 280; height: 200
@@ -397,35 +397,35 @@ Rectangle {
                 }
             }
 
-            // 详细信息（右侧）
+            
             Column {
                 anchors.left: previewContainer.right; anchors.leftMargin: 16
                 anchors.top: previewContainer.top
                 anchors.right: closeBtn.left; anchors.rightMargin: 12
                 spacing: 10
 
-                // 地图中文名
+                
                 Text {
                     text: cooldownPage.selectedMap ? cooldownPage.selectedMap.cnName : ""
                     color: "#FFFFFF"; font.pixelSize: 18; font.bold: true
                     elide: Text.ElideRight; width: parent.width
                 }
-                // 地图英文名
+                
                 Text {
                     text: cooldownPage.selectedMap ? cooldownPage.selectedMap.enName : ""
                     color: "#9BA1B5"; font.pixelSize: 12
                     elide: Text.ElideRight; width: parent.width; font.family: "Consolas"
                 }
 
-                // 分隔线
+                
                 Rectangle { width: parent.width; height: 1; color: "#20A78BFA" }
 
-                // 成就
+                
                 Row { spacing: 8; width: parent.width
                     Text { text: "成就:"; color: "#9BA1B5"; font.pixelSize: 13; width: 50 }
                     Text { text: cooldownPage.selectedMap ? cooldownPage.selectedMap.achievement : ""; color: "#FFFFFF"; font.pixelSize: 13; elide: Text.ElideRight; width: parent.width - 58 }
                 }
-                // 难度
+                
                 Row { spacing: 8; width: parent.width
                     Text { text: "难度:"; color: "#9BA1B5"; font.pixelSize: 13; width: 50 }
                     Rectangle {
@@ -433,17 +433,17 @@ Rectangle {
                         Text { anchors.centerIn: parent; text: cooldownPage.selectedMap ? (appController.difficultyTierMode ? appController.difficultyToTier(cooldownPage.selectedMap.difficulty) : cooldownPage.selectedMap.difficulty) : ""; color: "#FFFFFF"; font.pixelSize: 11; font.bold: true }
                     }
                 }
-                // 冷却时长
+                
                 Row { spacing: 8; width: parent.width
                     Text { text: "冷却:"; color: "#9BA1B5"; font.pixelSize: 13; width: 50 }
                     Text { text: cooldownPage.selectedMap ? cooldownPage.selectedMap.cooldown : ""; color: "#FFFFFF"; font.pixelSize: 13; font.bold: true }
                 }
-                // 冷却截止
+                
                 Row { spacing: 8; width: parent.width
                     Text { text: "截止:"; color: "#9BA1B5"; font.pixelSize: 13; width: 50 }
                     Text { text: cooldownPage.selectedMap ? (cooldownPage.selectedMap.cooldownEnd === "无" ? "随时可玩" : cooldownPage.selectedMap.cooldownEnd) : ""; color: "#C8C0E0"; font.pixelSize: 12 }
                 }
-                // 状态
+                
                 Row { spacing: 8; width: parent.width
                     Text { text: "状态:"; color: "#9BA1B5"; font.pixelSize: 13; width: 50 }
                     Text {
@@ -454,7 +454,7 @@ Rectangle {
                 }
             }
 
-            // 底部提示
+            
             Text {
                 anchors.bottom: parent.bottom; anchors.bottomMargin: 16
                 anchors.horizontalCenter: parent.horizontalCenter
