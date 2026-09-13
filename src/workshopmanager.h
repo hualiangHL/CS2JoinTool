@@ -46,7 +46,7 @@ signals:
 private:
     QVariantList m_maps;
     bool m_scanning = false;
-    QHash<QString, QString> m_mapDb; // name(lower) -> workshopId
+    QHash<QString, QString> m_mapDb; 
     QStringList m_libraryPaths;
     QString m_primaryWorkshopPath;
 
