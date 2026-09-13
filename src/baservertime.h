@@ -33,14 +33,14 @@ private:
     bool m_connected;
     bool m_handshakeDone;
     QByteArray m_readBuffer;
-    QByteArray m_messageBuffer; // 分片帧累加
+    QByteArray m_messageBuffer; 
     QTimer *m_reconnectTimer;
     int m_reconnectAttempt;
-    QHash<QString, qint64> m_mapTimes; // "ip:port" -> dateTimeOriginal (ms)
+    QHash<QString, qint64> m_mapTimes; 
 
     void sendHandshake();
     void parseFrames();
     void handleTextMessage(const QByteArray &message);
 };
 
-#endif // BASERVERTIME_H
+#endif 
