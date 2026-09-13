@@ -12,7 +12,6 @@ Rectangle {
     border.width: 1
     border.color: App.Theme.border
 
-
     Behavior on color { ColorAnimation { duration: App.Theme.durationFast } }
     Behavior on border.color { ColorAnimation { duration: App.Theme.durationFast } }
 
