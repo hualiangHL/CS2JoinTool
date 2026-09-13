@@ -81,7 +81,7 @@ bool PlayerQuery::sendPlayerQuery()
     packet.append((char)0xFF);
     packet.append((char)0xFF);
     packet.append((char)0xFF);
-    packet.append((char)0x55); // 'U' A2S_PLAYER
+    packet.append((char)0x55); 
     if (m_challenge != 0) {
         packet.append((char)(m_challenge & 0xFF));
         packet.append((char)((m_challenge >> 8) & 0xFF));
