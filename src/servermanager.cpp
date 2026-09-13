@@ -11,8 +11,6 @@
 #include <QJsonArray>
 #include <algorithm>
 
-// ============ ServerListModel ============
-
 ServerListModel::ServerListModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -86,7 +84,7 @@ void ServerListModel::setServers(const QList<ExgServerInfo> &servers)
 void ServerListModel::updateServerStatus(int index, int players, int maxPlayers, int bots, const QString &map, int status, const QString &gameName)
 {
     if (index < 0 || index >= m_servers.size()) return;
-    // 检测地图变化，记录切换时间
+    
     if (status == 1 && !map.isEmpty() && m_servers[index].map != map) {
         m_servers[index].mapChangedAt = QDateTime::currentSecsSinceEpoch();
     }
@@ -132,8 +130,6 @@ QVariantMap ServerListModel::get(int row) const
     return map;
 }
 
-// ============ ServerManager ============
-
 ServerManager::ServerManager(QObject *parent)
     : QObject(parent)
     , m_refreshing(false)
@@ -156,7 +152,7 @@ ServerManager::ServerManager(QObject *parent)
     applyFilters();
     m_baTime = new BaServerTime(this);
     connect(m_baTime, &BaServerTime::dataUpdated, this, [this](){
-        // BA数据到达后，重新应用到所有已在线服务器
+        
         for (int i = 0; i < m_allServers.size(); i++) {
             if (m_allServers[i].status != 1) continue;
             qint64 baTime = m_baTime->getMapTime(m_allServers[i].ip, m_allServers[i].port);
@@ -272,7 +268,7 @@ void ServerManager::loadCommunityOrder()
     QSettings settings(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/serverlist.ini", QSettings::IniFormat);
     QStringList saved = settings.value("communityOrder").toStringList();
     if (!saved.isEmpty()) {
-        // 只保留仍然存在的社区，缺失的追加到末尾
+        
         initCommunityOrder();
         QStringList merged;
         for (const QString &c : saved) {
@@ -329,7 +325,7 @@ void ServerManager::applyFilters()
 {
     QList<ExgServerInfo> filtered = m_allServers;
 
-    // 搜索过滤
+    
     if (!m_searchText.isEmpty()) {
         QString search = m_searchText.toLower();
         filtered.erase(std::remove_if(filtered.begin(), filtered.end(),
@@ -341,19 +337,19 @@ void ServerManager::applyFilters()
             }), filtered.end());
     }
 
-    // 离线过滤
+    
     if (m_hideOffline) {
         filtered.erase(std::remove_if(filtered.begin(), filtered.end(),
             [](const ExgServerInfo &s) { return s.status == 2; }), filtered.end());
     }
 
-    // 按社区分组
+    
     QHash<QString, QList<ExgServerInfo>> groups;
     for (const auto &s : filtered) {
         groups[s.community].append(s);
     }
 
-    // 按自定义社区顺序排列，组内排序（在线在前，离线在后）
+    
     QList<ExgServerInfo> result;
     for (const QString &comm : m_communityOrder) {
         if (!groups.contains(comm)) continue;
@@ -376,7 +372,7 @@ void ServerManager::applyFilters()
         result.append(group);
         groups.remove(comm);
     }
-    // 兜底：不在自定义顺序中的社区
+    
     for (auto it = groups.begin(); it != groups.end(); ++it) {
         result.append(it.value());
     }
@@ -466,10 +462,10 @@ void ServerManager::onQueryFinished(const ServerInfo &info)
     int serverIdx = q->property("serverIndex").toInt();
 
     if (serverIdx >= 0 && serverIdx < m_allServers.size()) {
-        // 优先使用bluearchive.top的真实地图切换时间，匹配不到才用本地追踪
+        
         qint64 baTime = m_baTime->getMapTime(m_allServers[serverIdx].ip, m_allServers[serverIdx].port);
         if (baTime > 0) {
-            // dateTimeOriginal是毫秒级时间戳，转为秒
+            
             m_allServers[serverIdx].mapChangedAt = baTime / 1000;
         } else if (!info.mapName.isEmpty() && m_allServers[serverIdx].map != info.mapName) {
             m_allServers[serverIdx].mapChangedAt = QDateTime::currentSecsSinceEpoch();
@@ -479,10 +475,10 @@ void ServerManager::onQueryFinished(const ServerInfo &info)
         m_allServers[serverIdx].bots = info.bots;
         m_allServers[serverIdx].map = info.mapName;
         m_allServers[serverIdx].gameName = info.serverName;
-        m_allServers[serverIdx].status = 1; // online
+        m_allServers[serverIdx].status = 1; 
 
         const ExgServerInfo &srv = m_allServers[serverIdx];
-        // 通知用实时服务器名，离线时回退到显示名
+        
         QString srvName = srv.gameName.isEmpty() ? srv.displayNameCN : srv.gameName;
         emit serverMapUpdated(srv.ip, srv.port, srvName, srv.community,
                               srv.map, srv.currentPlayers, srv.maxPlayers);
@@ -502,7 +498,7 @@ void ServerManager::onQueryFinished(const ServerInfo &info)
     if (m_pendingQueries <= 0) {
         m_refreshing = false;
         emit refreshingChanged(false);
-        applyFilters(); // 全部查询完成后一次性重建 model
+        applyFilters(); 
     }
 }
 
@@ -515,7 +511,7 @@ void ServerManager::onQueryError(const QString &error)
     int serverIdx = q->property("serverIndex").toInt();
 
     if (serverIdx >= 0 && serverIdx < m_allServers.size()) {
-        m_allServers[serverIdx].status = 2; // offline
+        m_allServers[serverIdx].status = 2; 
     }
 
     m_modelVersion++;
@@ -532,13 +528,13 @@ void ServerManager::onQueryError(const QString &error)
     if (m_pendingQueries <= 0) {
         m_refreshing = false;
         emit refreshingChanged(false);
-        applyFilters(); // 全部查询完成后一次性重建 model
+        applyFilters(); 
     }
 }
 
 void ServerManager::onAutoRefresh()
 {
-    if (m_refreshing) return; // 刷新中暂停计时
+    if (m_refreshing) return; 
     if (m_refreshCountdown > 0) m_refreshCountdown--;
     if (m_refreshCountdown <= 0) {
         m_refreshCountdown = 60;
@@ -553,7 +549,7 @@ QString ServerManager::mapTranslate(const QString &mapName)
 
     QString lower = mapName.toLower();
 
-    // 找到 _v+数字 的位置，截断其后所有内容
+    
     int cutPos = lower.length();
     int vPos = lower.indexOf("_v");
     while (vPos >= 0) {
@@ -566,7 +562,7 @@ QString ServerManager::mapTranslate(const QString &mapName)
 
     QString base = lower.left(cutPos);
 
-    // 去掉末尾 _final _fix _p 后缀
+    
     while (true) {
         if (base.endsWith("_final")) { base.chop(6); continue; }
         if (base.endsWith("_fix")) { base.chop(4); continue; }
@@ -574,24 +570,25 @@ QString ServerManager::mapTranslate(const QString &mapName)
         break;
     }
 
-    // 字典键均为小写，直接用小写查找
+    
     QHash<QString, QString>::const_iterator it = m_mapDict.constFind(base);
     if (it != m_mapDict.constEnd()) return it.value();
 
     it = m_mapDict.constFind(lower);
     if (it != m_mapDict.constEnd()) return it.value();
 
-    // 未翻译则去掉 ze_ 前缀返回
+    
     if (lower.startsWith("ze_")) return mapName.mid(3);
     return mapName;
 }
 
-void ServerManager::joinServer(int index)
+void ServerManager::joinServer(int index, int protocol)
 {
     ExgServerInfo s = m_model.getServer(index);
     if (s.ip.isEmpty()) return;
-    ServerQuery::connectToServer(s.ip, s.port);
-    emit serverJoined(s.ip, s.port, s.displayNameCN);
+    ServerQuery::connectToServer(s.ip, s.port, "", protocol);
+    QString realName = s.gameName.isEmpty() ? s.displayNameCN : s.gameName;
+    emit serverJoined(s.ip, s.port, realName);
 }
 
 void ServerManager::copyAddress(int index)
