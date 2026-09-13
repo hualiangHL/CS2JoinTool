@@ -56,4 +56,4 @@ private:
     static QString formatCooldown(int minutes);
 };
 
-#endif // MAPCOOLDOWNMANAGER_H
+#endif 
