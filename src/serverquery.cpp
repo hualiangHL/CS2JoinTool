@@ -46,7 +46,7 @@ void ServerQuery::queryServer(const QString &ip, int port)
 {
     reset();
 
-    // 处理用户可能把 IP:端口 写在一起的情况
+    
     QString cleanIp = ip.trimmed();
     int effectivePort = port;
     int colonIdx = cleanIp.lastIndexOf(':');
@@ -63,7 +63,7 @@ void ServerQuery::queryServer(const QString &ip, int port)
     m_ip = cleanIp;
     m_port = static_cast<quint16>(effectivePort);
 
-    // 同步DNS解析（和v3一致）
+    
     QHostAddress addrCheck(m_ip);
     if (addrCheck.isNull()) {
         QHostInfo dns = QHostInfo::fromName(m_ip);
@@ -71,7 +71,7 @@ void ServerQuery::queryServer(const QString &ip, int port)
             m_resolvedIp = dns.addresses().first();
             m_ip = m_resolvedIp.toString();
         } else {
-            // DNS解析失败，尝试用主机名直接连接（Qt内部异步解析）
+            
             m_resolvedIp = QHostAddress();
         }
     } else {
@@ -82,14 +82,14 @@ void ServerQuery::queryServer(const QString &ip, int port)
     m_challenge = 0;
     emit queryingChanged(true);
 
-    // 和V3一致：bind后connectToHost
+    
     if (m_socket->state() == QUdpSocket::ConnectedState) {
         m_socket->disconnectFromHost();
     }
     if (!m_resolvedIp.isNull()) {
         m_socket->connectToHost(m_resolvedIp, m_port);
     } else {
-        // 用主机名连接，Qt内部做DNS
+        
         m_socket->connectToHost(m_ip, m_port);
     }
 
@@ -99,15 +99,14 @@ void ServerQuery::queryServer(const QString &ip, int port)
     sendA2SInfoQuery();
 }
 
-// 对齐参考项目：复用已连接的socket，每次重置challenge（标准2次往返流程）
 void ServerQuery::queryServerWithoutReset()
 {
     if (m_ip.isEmpty() || m_port == 0) {
         emit queryError("未设置服务器地址");
         return;
     }
-    // 每次查询重置challenge：先发无challenge包→服务器返回challenge→再发带challenge包
-    // 不重置会导致超时后残留旧challenge，多一次往返
+    
+    
     m_challenge = 0;
     m_isQuerying = true;
     emit queryingChanged(true);
@@ -135,7 +134,7 @@ bool ServerQuery::sendA2SInfoQuery()
     if (!m_resolvedIp.isNull()) {
         sent = m_socket->writeDatagram(packet, m_resolvedIp, m_port);
     } else {
-        // 主机名连接模式，socket已connected，用write()
+        
         sent = m_socket->write(packet);
     }
     if (sent > 0) {
