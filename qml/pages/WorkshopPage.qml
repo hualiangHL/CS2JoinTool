@@ -31,7 +31,7 @@ Rectangle {
     property real ctxMenuX: 0
     property real ctxMenuY: 0
 
-    // 地图详情面板
+    
     property string detailMapName: ""
     property string detailMapId: ""
     property string detailMapPath: ""
@@ -63,7 +63,7 @@ Rectangle {
         }
     }
 
-    // 从Steam创意工坊API获取预览图
+    
     function loadWorkshopPreview(workshopId) {
         if (!workshopId || workshopId.length === 0) return
         detailImg.source = ""
@@ -109,7 +109,7 @@ Rectangle {
         var libs = workshopManager.libraryPaths
         var result = []
         for (var i = 0; i < libs.length; i++) {
-            var fullPath = libs[i].replace(/\//g, "\\") + "\\steamapps\\workshop\\content\\730"
+            var fullPath = libs[i].replace(/\
             if (kw.length === 0 || fullPath.toLowerCase().indexOf(kw) >= 0) {
                 result.push(fullPath)
             }
@@ -270,7 +270,7 @@ Rectangle {
                     anchors.leftMargin: 10
                     anchors.rightMargin: 10
                     verticalAlignment: Text.AlignVCenter
-                    text: workshopManager.primaryWorkshopPath.replace(/\//g, "\\")
+                    text: workshopManager.primaryWorkshopPath.replace(/\
                     color: "#FF9BA1B5"
                     font.pixelSize: 11
                     elide: Text.ElideMiddle
@@ -298,7 +298,7 @@ Rectangle {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        workshopPage.pathInputText = workshopManager.primaryWorkshopPath.replace(/\//g, "\\")
+                        workshopPage.pathInputText = workshopManager.primaryWorkshopPath.replace(/\
                         workshopPage.pathInputVisible = true
                         workshopPage.updatePathSuggestions()
                     }
@@ -404,7 +404,7 @@ Rectangle {
                                 }
                             }
 
-                            // 悬浮+左键点击+右键菜单层
+                            
                             MouseArea {
                                 id: wsItemHover
                                 anchors.fill: parent
@@ -459,7 +459,7 @@ Rectangle {
                 }
             }
 
-            // 滚动条轨道
+            
             Rectangle {
                 anchors.right: parent.right; anchors.rightMargin: 2
                 anchors.top: parent.top; anchors.topMargin: 4
@@ -469,7 +469,7 @@ Rectangle {
                 visible: wsFlick.contentHeight > wsFlick.height + 1
             }
 
-            // 滚动条滑块
+            
             Rectangle {
                 anchors.right: parent.right; anchors.rightMargin: 2
                 width: 5; radius: 2.5
@@ -486,7 +486,7 @@ Rectangle {
         }
     }
 
-    // 路径输入弹窗
+    
     Rectangle {
         id: pathInputOverlay
         anchors.fill: parent
@@ -698,7 +698,7 @@ Rectangle {
         }
     }
 
-    // 右键菜单遮罩
+    
     MouseArea {
         anchors.fill: parent
         z: 101
@@ -706,7 +706,7 @@ Rectangle {
         onClicked: closeCtxMenu()
     }
 
-    // 右键菜单
+    
     Rectangle {
         id: wsCtxMenu
         x: ctxMenuX
@@ -729,7 +729,7 @@ Rectangle {
             width: parent.width
             spacing: 0
 
-            // 1. 打开创意工坊地图
+            
             Rectangle {
                 width: parent.width
                 height: 38
@@ -754,7 +754,7 @@ Rectangle {
                 }
             }
 
-            // 2. 复制地图名称
+            
             Rectangle {
                 width: parent.width
                 height: 38
@@ -779,7 +779,7 @@ Rectangle {
                 }
             }
 
-            // 3. 复制地图ID
+            
             Rectangle {
                 width: parent.width
                 height: 38
@@ -804,7 +804,7 @@ Rectangle {
                 }
             }
 
-            // 4. 打开地图文件夹位置
+            
             Rectangle {
                 width: parent.width
                 height: 38
@@ -829,7 +829,7 @@ Rectangle {
                 }
             }
 
-            // 分割线
+            
             Rectangle {
                 width: parent.width - 20
                 height: 1
@@ -837,7 +837,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            // 5. 删除地图文件并重启Steam
+            
             Rectangle {
                 width: parent.width
                 height: 38
@@ -864,7 +864,7 @@ Rectangle {
         }
     }
 
-    // 地图详情面板遮罩
+    
     MouseArea {
         anchors.fill: parent
         z: 80
@@ -886,7 +886,7 @@ Rectangle {
         }
     }
 
-    // 地图详情面板
+    
     Rectangle {
         id: detailPanel
         width: 620
@@ -903,7 +903,7 @@ Rectangle {
         Behavior on scale { NumberAnimation { duration: detailClosing ? 180 : 220; easing.type: detailClosing ? Easing.InCubic : Easing.OutBack } }
         z: 81
 
-        // 左侧预览图
+        
         Rectangle {
             id: detailImgBox
             width: 320
@@ -947,7 +947,7 @@ Rectangle {
             }
         }
 
-        // 右侧信息
+        
         Column {
             anchors.left: detailImgBox.right
             anchors.leftMargin: 16
@@ -957,7 +957,7 @@ Rectangle {
             anchors.topMargin: 16
             spacing: 12
 
-            // 地图名称
+            
             Text {
                 width: parent.width
                 text: detailMapName
@@ -969,7 +969,7 @@ Rectangle {
                 maximumLineCount: 2
             }
 
-            // 状态
+            
             Row {
                 spacing: 6
                 Rectangle {
@@ -984,17 +984,17 @@ Rectangle {
                 }
             }
 
-            // 分割线
+            
             Rectangle { width: parent.width; height: 1; color: "#15A78BFA" }
 
-            // 工坊ID
+            
             Row {
                 spacing: 8
                 Text { text: "工坊ID:"; color: "#FF9BA1B5"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: detailMapId; color: "#FFFFFF"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
             }
 
-            // 工坊地址
+            
             Row {
                 width: parent.width
                 spacing: 8
@@ -1017,14 +1017,14 @@ Rectangle {
                 }
             }
 
-            // VPK名称
+            
             Row {
                 spacing: 8
                 Text { text: "地图文件:"; color: "#FF9BA1B5"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: detailMapVpkName + ".vpk"; color: "#FFFFFF"; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight; width: 200 }
             }
 
-            // 安装路径
+            
             Column {
                 width: parent.width
                 spacing: 4
@@ -1039,7 +1039,7 @@ Rectangle {
             }
         }
 
-        // 底部提示
+        
         Text {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 10
