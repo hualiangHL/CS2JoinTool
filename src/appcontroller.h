@@ -8,6 +8,8 @@
 #include <QQuickWindow>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QQueue>
+#include <QPair>
 #include "serverquery.h"
 #include "roundedcornerrenderer.h"
 
@@ -125,7 +127,7 @@ public:
     Q_INVOKABLE QString difficultyToTier(const QString &diff);
     Q_INVOKABLE void startAutoJoin();
     Q_INVOKABLE void stopAutoJoin();
-    Q_INVOKABLE void joinNow();
+    Q_INVOKABLE void joinNow(bool autoJoin = false);
     Q_INVOKABLE void cancelJoin();
     Q_INVOKABLE void clearLog();
     Q_INVOKABLE void saveSettings();
@@ -138,11 +140,25 @@ public:
     Q_INVOKABLE void applyWindowMask(QQuickWindow *window, int radius);
     Q_INVOKABLE bool applyDwmRoundedCorners(QQuickWindow *window);
     Q_INVOKABLE void setupRoundedCorners(QQuickWindow *window);
+    Q_INVOKABLE void setWindowMaximized(bool maximized);
     Q_INVOKABLE void updateWindowMask();
     void showToastNotification(const QString &title, const QString &message);
+    void tryShowNextToast();
+    void startToastCooldown();
+    void playNotificationSound();
+    Q_INVOKABLE void dismissToast();
+    Q_INVOKABLE void positionFloatWindow();
     static void notifyExistingInstance();
 
+    Q_PROPERTY(int toastCooldownRemaining READ toastCooldownRemaining NOTIFY toastCooldownRemainingChanged)
+    Q_PROPERTY(bool toastShowing READ toastShowing NOTIFY toastShowingChanged)
+
+    int toastCooldownRemaining() const { return m_toastCooldownRemaining; }
+    bool toastShowing() const { return m_toastShowing; }
+
 signals:
+    void toastCooldownRemainingChanged(int remaining);
+    void toastShowingChanged(bool showing);
     void serverIpChanged(const QString &ip);
     void serverPortChanged(int port);
     void serverPasswordChanged(const QString &pwd);
@@ -158,6 +174,7 @@ signals:
     void currentPlayersChanged(int players);
     void maxPlayersChanged(int max);
     void toastRequested(const QString &title, const QString &message);
+    void forceHideToast();
     void currentMapChanged(const QString &map);
     void currentServerNameChanged(const QString &name);
     void serverStatusChanged(int status);
@@ -192,6 +209,13 @@ private slots:
 private:
     ServerQuery *m_query;
     QTimer *m_autoJoinTimer;
+    QTimer *m_toastForceTimer = nullptr;
+    QTimer *m_toastCooldownTimer = nullptr;
+    QTimer *m_toastGapTimer = nullptr;
+    bool m_toastCooldown = false;
+    bool m_toastShowing = false;
+    int m_toastCooldownRemaining = 0;
+    QQueue<QPair<QString, QString>> m_toastQueue;
     QSettings *m_settings;
     QSystemTrayIcon *m_tray = nullptr;
     RoundedCornerRenderer *m_roundedRenderer = nullptr;
@@ -215,16 +239,16 @@ private:
     int m_maxPlayers;
     QString m_currentMap;
     QString m_currentServerName;
-    int m_serverStatus; // 0=unknown, 1=online, 2=offline
+    int m_serverStatus; 
     QString m_logText;
 
-    // 挤服状态
+    
     QString m_joinStatus;
-    int m_joinPhase;      // 0=idle,1=查询中,2=满员等待,3=连接中,4=成功,5=失败
+    int m_joinPhase;      
     int m_connectProtocol;
     int m_defaultConnectProtocol;
     int m_joinThreshold;
-    int m_bgMode;  // 0=随机轮播, 1=图片一, 2=图片二, 3=图片三
+    int m_bgMode;  
     bool m_transparentWindow;
     bool m_proMode;
     double m_defaultJoinInterval;
@@ -241,4 +265,4 @@ private:
     void setJoinStatus(const QString &text, int phase);
 };
 
-#endif // APPCONTROLLER_H
+#endif 
