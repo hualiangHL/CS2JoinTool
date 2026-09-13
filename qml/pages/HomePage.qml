@@ -12,6 +12,10 @@ Item {
     ParallelAnimation {
         id: staggerAnim
         SequentialAnimation {
+            PauseAnimation { duration: 100 }
+            NumberAnimation { target: pageTitle; property: "opacity"; to: 1; duration: 400; easing.type: Easing.OutCubic }
+        }
+        SequentialAnimation {
             PauseAnimation { duration: 280 }
             NumberAnimation { target: staggerChild1; property: "opacity"; to: 1; duration: 600; easing.type: Easing.OutCubic }
         }
@@ -31,12 +35,13 @@ Item {
 
     onPageActiveChanged: {
         if (pageActive) {
+            pageTitle.opacity = 0
             staggerChild1.opacity = 0
             staggerChild2.opacity = 0
             staggerChild3.opacity = 0
             staggerChild4.opacity = 0
             staggerAnim.restart()
-            // 每次切换到挤服主页，自动应用设置页的默认连接协议
+            
             appController.connectProtocol = appController.defaultConnectProtocol
         } else if (protoDropdownOpen) {
             protoDropdownOpen = false
@@ -54,6 +59,7 @@ Item {
         interval: 50
         repeat: false
         onTriggered: {
+            pageTitle.opacity = 0
             staggerChild1.opacity = 0
             staggerChild2.opacity = 0
             staggerChild3.opacity = 0
@@ -62,9 +68,30 @@ Item {
         }
     }
 
+    Text {
+        id: pageTitle
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 16
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        text: "挤服主页"
+        font.family: App.Theme.fontFamily
+        font.pixelSize: 22
+        font.bold: true
+        color: App.Theme.textPrimary
+    }
+
     ScrollView {
-        anchors.fill: parent
-        anchors.margins: 16
+        anchors.top: pageTitle.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.topMargin: 12
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.bottomMargin: 16
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -73,17 +100,7 @@ Item {
             width: homePage.width - 32
             spacing: 16
 
-            Text {
-                id: staggerChild0
-                    Layout.fillWidth: true
-                    text: "挤服主页"
-                    font.family: App.Theme.fontFamily
-                    font.pixelSize: 22
-                    font.bold: true
-                    color: App.Theme.textPrimary
-                }
-
-                // 连接配置卡片
+            
                 Rectangle {
                 id: staggerChild1
                 opacity: 0
@@ -146,7 +163,7 @@ Item {
                         }
                     }
 
-                    // 连接协议选择（下拉列表）
+                    
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
@@ -196,7 +213,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 10
 
-                        // 查询状态按钮（次要风格）
+                        
                         Rectangle {
                             Layout.fillWidth: true
                             implicitHeight: 36
@@ -209,7 +226,7 @@ Item {
                             Text { anchors.centerIn: parent; text: "查询状态"; color: App.Theme.textPrimary; font.pixelSize: 13 }
                         }
 
-                        // 连接服务器按钮（主要风格-青色）
+                        
                         Rectangle {
                             Layout.fillWidth: true
                             implicitHeight: 36
@@ -225,7 +242,7 @@ Item {
                 }
                 }
 
-                // 状态卡片
+                
                 Rectangle {
                 id: staggerChild2
                 opacity: 0
@@ -274,7 +291,7 @@ Item {
                 }
                 }
 
-                // 自动挤服卡片
+                
                 Rectangle {
                 id: staggerChild3
                 opacity: 0
@@ -302,7 +319,7 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    // 自定义Slider
+                    
                     Slider {
                         id: intervalSlider
                         Layout.fillWidth: true
@@ -335,7 +352,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 10
 
-                        // 开始/停止挤服按钮（主要风格）
+                        
                         Rectangle {
                             Layout.fillWidth: true
                             implicitHeight: 36
@@ -358,7 +375,7 @@ Item {
                 }
                 }
 
-                // 日志卡片
+                
                 Rectangle {
                 id: staggerChild4
                 opacity: 0
@@ -380,7 +397,7 @@ Item {
                         Text { text: "运行日志"; font.bold: true; color: App.Theme.textPrimary; font.pixelSize: 15 }
                         Item { Layout.fillWidth: true }
 
-                        // 清空按钮（次要风格，小尺寸）
+                        
                         Rectangle {
                             implicitWidth: 64; implicitHeight: 28
                             radius: 6
@@ -412,7 +429,7 @@ Item {
         }
     }
 
-    // ===== 自定义连接协议下拉列表（纯Rectangle，非独立窗口，彻底避免Windows矩形边界） =====
+    
     property bool protoDropdownOpen: false
     property real protoDropdownMask: 0
 
@@ -432,7 +449,7 @@ Item {
         }
     }
 
-    // 点击外部关闭
+    
     MouseArea {
         anchors.fill: parent
         z: 98
