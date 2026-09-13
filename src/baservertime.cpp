@@ -141,11 +141,11 @@ void BaServerTime::parseFrames()
             return;
         }
 
-        // 处理分片帧
+        
         if (opcode == 0x1 || opcode == 0x2) {
-            m_messageBuffer = payload; // 新消息的第一帧
+            m_messageBuffer = payload; 
         } else if (opcode == 0x0) {
-            m_messageBuffer.append(payload); // 延续帧
+            m_messageBuffer.append(payload); 
         }
 
         if (fin) {
@@ -179,8 +179,8 @@ void BaServerTime::handleTextMessage(const QByteArray &message)
             QString connectStr = s.value("connectStr").toString();
             QString dateTimeStr = s.value("dateTimeOriginal").toString();
             if (!connectStr.isEmpty() && !dateTimeStr.isEmpty()) {
-                // 解析 "2026-09-11 21:52:05.350060489" 格式
-                QString dtStr = dateTimeStr.left(23); // 截到毫秒
+                
+                QString dtStr = dateTimeStr.left(23); 
                 QDateTime dt = QDateTime::fromString(dtStr, "yyyy-MM-dd HH:mm:ss.zzz");
                 if (dt.isValid()) {
                     m_mapTimes[connectStr] = dt.toMSecsSinceEpoch();
