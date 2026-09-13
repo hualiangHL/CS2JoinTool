@@ -5,7 +5,7 @@
 #include <QString>
 
 inline void initMapTranslations(QHash<QString, QString> &dict) {
-    dict.reserve(692);
+    dict.reserve(698);
     dict.insert("ze_1_schizo", "思觉失调");
     dict.insert("ze_1way_tunnel", "单向隧道");
     dict.insert("ze_2012_p", "2012世界末日");
@@ -22,7 +22,6 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_alien_mountain_escape_ffvii_v5", "阿里山逃亡(FF版)");
     dict.insert("ze_alien_mountain_escape_p", "阿里山");
     dict.insert("ze_alien_shooter", "孤胆枪手");
-    dict.insert("ze_amdaporkeep", "最终幻想14:无限城古堡");
     dict.insert("ze_ancient_wrath_p", "古代种金字塔");
     dict.insert("ze_angelbeats_guild", "天使的心跳");
     dict.insert("ze_angels_of_death", "杀戮天使");
@@ -71,6 +70,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_bh3rd_babel_z", "崩坏3:巴比伦塔");
     dict.insert("ze_bh3rd_cyberpunk_z", "崩坏3:天穹市");
     dict.insert("ze_bh3rd_nagazoracity_z", "崩坏3:长空市");
+    dict.insert("ze_bible_adventure_ot_p", "圣经大冒险");
     dict.insert("ze_bigboo_n64", "超级马里奥之闹鬼小屋");
     dict.insert("ze_biohazard2_rpd_004_p", "生化危机：警察局");
     dict.insert("ze_biohazard2_sewer_004", "生化危机2：下水道");
@@ -153,6 +153,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_descent_into_cerberon_p", "破碎行动");
     dict.insert("ze_desert_tour_cs2", "游历沙漠之旅");
     dict.insert("ze_desperate_soul", "异闻录：母神悲歌");
+    dict.insert("ze_destruction_of_exorath", "死亡空间");
     dict.insert("ze_devil_may_cry", "鬼泣五");
     dict.insert("ze_diablo", "暗黑破坏神");
     dict.insert("ze_diamond_cube_v1_cs2", "钻石立方体");
@@ -163,6 +164,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_dnb_realms_a1", "鼓与贝斯的领域之境");
     dict.insert("ze_dnd_hydra_z", "龙与地下城：海德拉");
     dict.insert("ze_doom", "毁灭战士");
+    dict.insert("ze_doomglaven", "战锤：末世鼠疫");
     dict.insert("ze_dorororo", "和doro一起夺回orange");
     dict.insert("ze_downstairs", "萌新爱下楼");
     dict.insert("ze_dragonball_snakeway_p", "龙珠：蛇道");
@@ -191,6 +193,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_evil_mansion_p", "邪恶公馆");
     dict.insert("ze_exchange_innovation_p", "逃离生化大楼");
     dict.insert("ze_exit8", "逃离8号出口");
+    dict.insert("ze_exit_this_earths_atomosphere_p", "逃出大气层");
     dict.insert("ze_eye_factory_escape", "独眼工厂逃亡");
     dict.insert("ze_eye_for_an_eye_v22", "以眼还眼");
     dict.insert("ze_ez_run", "娱乐主义时代");
@@ -366,7 +369,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_minecraft_drifts", "我的世界：漂流");
     dict.insert("ze_minecraft_escape", "我的世界：大逃杀");
     dict.insert("ze_minecraft_flood_escape", "我的世界：洪水逃离");
-    dict.insert("ze_minecraft_hortus_de_escapism", "我的世界：雾林镇的阴霾");
+    dict.insert("ze_minecraft_hortus_de_escapismo", "我的世界：雾林镇的阴霾");
     dict.insert("ze_minecraft_lucky_blocks", "我的世界:幸运方块");
     dict.insert("ze_minecraft_manor_panic", "我的世界：宅邸防守战");
     dict.insert("ze_minecraft_p", "我的世界");
@@ -378,6 +381,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_minimal", "极病");
     dict.insert("ze_mirrors_edge_reborn_p", "镜之边缘：跑酷重生");
     dict.insert("ze_misaka", "御坂大冒险1");
+    dict.insert("ze_misaka2_reborn", "御坂大冒险2（重生）");
     dict.insert("ze_miside", "米塔 Miside");
     dict.insert("ze_mission_escape", "雪地逃亡");
     dict.insert("ze_mist_p", "雾城龙影");
@@ -467,6 +471,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_otakuroom_pt", "御宅房");
     dict.insert("ze_outlast", "逃生I");
     dict.insert("ze_outpost_escape_p", "前哨基地逃亡");
+    dict.insert("ze_overkill_p", "赶尽杀绝");
     dict.insert("ze_overlord", "不死者之王");
     dict.insert("ze_p_v_z", "植物大战僵尸");
     dict.insert("ze_paindown", "殇渊");
@@ -682,6 +687,7 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_waterpark", "长隆水上乐园");
     dict.insert("ze_wicked_organization", "邪惡组织");
     dict.insert("ze_winter", "凛冬小镇");
+    dict.insert("ze_winter_house", "冬日之家");
     dict.insert("ze_winter_warehouse_p", "冰雪牢缘");
     dict.insert("ze_world_escapes", "世界逃亡");
     dict.insert("ze_xenovation", "异界终章");
@@ -700,4 +706,4 @@ inline void initMapTranslations(QHash<QString, QString> &dict) {
     dict.insert("ze_zombierig_p", "钻井平台");
 }
 
-#endif // MAPTRANSLATIONS_H
+#endif 
