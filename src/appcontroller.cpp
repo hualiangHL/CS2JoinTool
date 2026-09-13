@@ -10,8 +10,11 @@
 #include <QWindow>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFile>
+#include <QTextStream>
 #include <QTimer>
 #include <QQueue>
+#include <QOperatingSystemVersion>
 
 #ifdef Q_OS_WIN
 #ifndef NOMINMAX
@@ -21,7 +24,6 @@
 #include <shellapi.h>
 #endif
 
-// ===== Windows 纯文字系统通知（无图标，带队列+防卡死）=====
 #ifdef Q_OS_WIN
 static HWND g_sysNotifyHwnd = nullptr;
 static const UINT g_sysNotifyUid = 0x57A2;
@@ -29,6 +31,21 @@ static QQueue<QPair<QString, QString>> g_sysNotifyQueue;
 static bool g_sysNotifyShowing = false;
 static bool g_trayIconRegistered = false;
 static QTimer *g_sysNotifyWatchdog = nullptr;
+static QTimer *g_trayCleanupTimer = nullptr;
+
+static void deleteTrayIconOnly()
+{
+    if (g_trayIconRegistered && g_sysNotifyHwnd) {
+        NOTIFYICONDATAW nid;
+        memset(&nid, 0, sizeof(nid));
+        nid.cbSize = sizeof(nid);
+        nid.hWnd = g_sysNotifyHwnd;
+        nid.uID = g_sysNotifyUid;
+        Shell_NotifyIconW(NIM_DELETE, &nid);
+        g_trayIconRegistered = false;
+        qDebug() << "[Notify] tray icon removed after notification";
+    }
+}
 
 static void ensureSysNotifyWindow()
 {
@@ -45,6 +62,18 @@ static void ensureSysNotifyWindow()
                                         0, 0, 0, 0, HWND_MESSAGE, nullptr, wc.hInstance, nullptr);
 }
 
+static HICON LoadAppIcon()
+{
+    wchar_t exePath[MAX_PATH];
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    HICON hLarge = nullptr, hSmall = nullptr;
+    if (ExtractIconExW(exePath, 0, &hLarge, &hSmall, 1) > 0) {
+        if (hLarge) DestroyIcon(hLarge);
+        if (hSmall) return hSmall;
+    }
+    return LoadIcon(nullptr, IDI_APPLICATION);
+}
+
 static void ensureTrayIconRegistered()
 {
     if (g_trayIconRegistered) return;
@@ -58,8 +87,8 @@ static void ensureTrayIconRegistered()
     nid.uID = g_sysNotifyUid;
     nid.uFlags = NIF_ICON | NIF_MESSAGE;
     nid.uCallbackMessage = WM_USER + 1;
-    nid.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-    wcsncpy(nid.szTip, L"CS2挤服工具", 127);
+    nid.hIcon = LoadAppIcon();
+    wcsncpy(nid.szTip, L"cs2挤服工具V4_1", 127);
     nid.szTip[127] = L'\0';
 
     Shell_NotifyIconW(NIM_ADD, &nid);
@@ -79,7 +108,7 @@ static void showNotifyNow(const QString &title, const QString &message)
     nid.uID = g_sysNotifyUid;
     nid.uFlags = NIF_INFO | NIF_ICON;
     nid.dwInfoFlags = 0;
-    nid.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    nid.hIcon = LoadAppIcon();
 
     QString safeTitle = title;
     if (safeTitle.length() > 60) safeTitle = safeTitle.left(60) + "...";
@@ -106,11 +135,18 @@ static void processNextNotify()
     } else {
         g_sysNotifyShowing = false;
         if (g_sysNotifyWatchdog) g_sysNotifyWatchdog->stop();
+        if (!g_trayCleanupTimer) {
+            g_trayCleanupTimer = new QTimer();
+            g_trayCleanupTimer->setSingleShot(true);
+            QObject::connect(g_trayCleanupTimer, &QTimer::timeout, []() { deleteTrayIconOnly(); });
+        }
+        g_trayCleanupTimer->start(5000);
     }
 }
 
 static void doShowSysNotify(const QString &title, const QString &message)
 {
+    if (g_trayCleanupTimer) g_trayCleanupTimer->stop();
     if (g_sysNotifyShowing) {
         g_sysNotifyQueue.enqueue(qMakePair(title, message));
         return;
@@ -154,13 +190,16 @@ AppController::AppController(QObject *parent)
     : QObject(parent)
     , m_query(new ServerQuery(this))
     , m_autoJoinTimer(new QTimer(this))
+    , m_toastForceTimer(new QTimer(this))
+    , m_toastCooldownTimer(new QTimer(this))
+    , m_toastGapTimer(new QTimer(this))
     , m_settings(new QSettings(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件/settings.ini", QSettings::IniFormat, this))
     , m_serverPort(27015)
     , m_interval(100.0)
     , m_autoJoining(false)
     , m_connected(false)
     , m_retryCount(0)
-    , m_maxRetryCount(0)
+    , m_maxRetryCount(999999)
     , m_darkTheme(true)
     , m_alwaysOnTop(false)
     , m_autoRetryJoin(true)
@@ -185,13 +224,41 @@ AppController::AppController(QObject *parent)
     connect(m_query, &ServerQuery::queryFinished, this, &AppController::onQueryFinished);
     connect(m_query, &ServerQuery::queryError, this, &AppController::onQueryError);
 
-    // 50ms精确定时器持续查询（每秒20次），复用socket，标准A2S流程
+    
     m_autoJoinTimer->setInterval(50);
     m_autoJoinTimer->setTimerType(Qt::PreciseTimer);
     m_autoJoinTimer->setSingleShot(false);
     connect(m_autoJoinTimer, &QTimer::timeout, this, &AppController::onAutoJoinTick);
 
-    // 确保配置文件夹存在
+    m_toastForceTimer->setSingleShot(true);
+    m_toastForceTimer->setInterval(5000);
+    connect(m_toastForceTimer, &QTimer::timeout, this, [this]() {
+        emit forceHideToast();
+        m_toastShowing = false;
+        emit toastShowingChanged(false);
+        if (!m_toastQueue.isEmpty()) {
+            m_toastGapTimer->start();
+        }
+    });
+
+    m_toastGapTimer->setSingleShot(true);
+    m_toastGapTimer->setInterval(800);
+    connect(m_toastGapTimer, &QTimer::timeout, this, [this]() {
+        tryShowNextToast();
+    });
+
+    m_toastCooldownTimer->setInterval(1000);
+    connect(m_toastCooldownTimer, &QTimer::timeout, this, [this]() {
+        m_toastCooldownRemaining--;
+        emit toastCooldownRemainingChanged(m_toastCooldownRemaining);
+        if (m_toastCooldownRemaining <= 0) {
+            m_toastCooldownTimer->stop();
+            m_toastCooldown = false;
+            tryShowNextToast();
+        }
+    });
+
+    
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/cs2挤服全部配置文件");
 
     loadSettings();
@@ -214,7 +281,7 @@ AppController::AppController(QObject *parent)
         });
     }
 
-    // 系统托盘
+    
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         m_tray = new QSystemTrayIcon(this);
         m_tray->setIcon(QIcon(":/assets/app_icon.png"));
@@ -272,6 +339,11 @@ void AppController::setInterval(double ms)
     if (m_interval != ms) {
         m_interval = ms;
         emit intervalChanged(ms);
+        
+        if (m_autoJoining && m_autoJoinTimer) {
+            int tickMs = qMax(1, (int)ceil(ms));
+            m_autoJoinTimer->setInterval(tickMs);
+        }
     }
 }
 
@@ -322,7 +394,7 @@ void AppController::setProMode(bool p)
     if (m_proMode != p) {
         m_proMode = p;
         emit proModeChanged(p);
-        // 关闭极速模式时，如果当前间隔低于50，重置为50
+        
         if (!p && m_interval < 50.0) {
             setInterval(50.0);
         }
@@ -443,12 +515,12 @@ void AppController::onQueryFinished(const ServerInfo &info)
         setStatus(QString("在线 - %1/%2 玩家").arg(info.players).arg(info.maxPlayers));
     }
 
-    // 自动挤服核心逻辑
+    
     if (m_autoJoining) {
         m_retryCount++;
         emit retryCountChanged(m_retryCount);
 
-        // 达到最大尝试次数自动停止
+        
         if (m_maxRetryCount > 0 && m_retryCount >= m_maxRetryCount) {
             setJoinStatus(QString("已达到最大尝试次数 %1，停止挤服").arg(m_maxRetryCount), 5);
             appendLog(QString("已达到最大尝试次数 %1，自动停止").arg(m_maxRetryCount));
@@ -460,10 +532,10 @@ void AppController::onQueryFinished(const ServerInfo &info)
         bool hasSlot = (info.players < info.maxPlayers && humanPlayers <= m_joinThreshold);
 
         if (hasSlot) {
-            // 发现空位，立即连接
+            
             setJoinStatus(QString("发现空位！人数 %1/%2 (人类%3)，正在连接...").arg(info.players).arg(info.maxPlayers).arg(humanPlayers), 3);
             appendLog(QString("发现空位！人数 %1/%2 (人类%3) 阈值%4，正在连接...").arg(info.players).arg(info.maxPlayers).arg(humanPlayers).arg(m_joinThreshold));
-            joinNow();
+            joinNow(true);
         } else {
             setJoinStatus(QString("人数 %1/%2 (人类%3) 阈值%4，等待中...").arg(info.players).arg(info.maxPlayers).arg(humanPlayers).arg(m_joinThreshold), 2);
         }
@@ -478,7 +550,7 @@ void AppController::onQueryError(const QString &error)
         setStatus("离线/无响应");
     }
     appendLog(error, true);
-    // 50ms定时器会自动重新查询
+    
 }
 
 void AppController::startAutoJoin()
@@ -496,9 +568,13 @@ void AppController::startAutoJoin()
 
     setStatus("自动挤服中...");
     setJoinStatus("正在查询服务器...", 1);
-    appendLog(QString("开始自动挤服: %1:%2 (50ms极速查询)").arg(m_serverIp).arg(m_serverPort));
+    appendLog(QString("开始自动挤服: %1:%2 (间隔%3ms)").arg(m_serverIp).arg(m_serverPort).arg(m_interval));
 
-    // 首次查询建立socket，之后定时器持续queryServerWithoutReset()
+    
+    int tickMs = qMax(1, (int)ceil(m_interval));
+    m_autoJoinTimer->setInterval(tickMs);
+
+    
     queryServer();
     m_autoJoinTimer->start();
 }
@@ -527,13 +603,13 @@ void AppController::cancelJoin()
 
 void AppController::onAutoJoinTick()
 {
-    // 每50ms发一个查询包（每秒20次），复用socket，标准A2S流程
+    
     if (m_autoJoining) {
         m_query->queryServerWithoutReset();
     }
 }
 
-void AppController::joinNow()
+void AppController::joinNow(bool autoJoin)
 {
     if (m_serverIp.isEmpty() || m_serverPort <= 0) {
         appendLog("请先输入服务器地址", true);
@@ -550,11 +626,16 @@ void AppController::joinNow()
 #ifdef Q_OS_WIN
         MessageBeep(MB_ICONINFORMATION);
 #endif
-        setConnected(true);
-        emit joinSuccess();
-        // 挤服成功系统通知
-        if (m_joinNotificationEnabled) {
-            showToastNotification("挤服成功", "已连接服务器，正在进入游戏...");
+        if (autoJoin) {
+            setConnected(true);
+            emit joinSuccess();
+            if (m_joinNotificationEnabled) {
+                showToastNotification("挤服成功", "已连接服务器，正在进入游戏...");
+            }
+        } else {
+            if (m_joinNotificationEnabled) {
+                showToastNotification("加入服务器成功", "已发送连接请求，正在进入游戏...");
+            }
         }
         if (m_autoJoining) {
             m_autoJoining = false;
@@ -624,7 +705,7 @@ void AppController::loadSettings()
     m_joinNotificationEnabled = m_settings->value("joinNotificationEnabled", false).toBool();
     m_debugPlayerList = m_settings->value("debugPlayerList", false).toBool();
     m_webMenuCommunity = m_settings->value("webMenuCommunity", 0).toInt();
-    m_maxRetryCount = m_settings->value("maxRetryCount", 0).toInt();
+    m_maxRetryCount = m_settings->value("maxRetryCount", 999999).toInt();
 
     emit serverIpChanged(m_serverIp);
     emit serverPortChanged(m_serverPort);
@@ -633,7 +714,7 @@ void AppController::loadSettings()
     emit darkThemeChanged(m_darkTheme);
     emit alwaysOnTopChanged(m_alwaysOnTop);
     emit autoRetryJoinChanged(m_autoRetryJoin);
-    // 加载设置后，当前协议同步为默认协议
+    
     m_connectProtocol = m_defaultConnectProtocol;
     emit connectProtocolChanged(m_connectProtocol);
     emit defaultConnectProtocolChanged(m_defaultConnectProtocol);
@@ -667,7 +748,7 @@ void AppController::openUrlDefaultBrowser(const QString &url)
 #ifdef Q_OS_WIN
     QString browserCmd;
 
-    // 1. 从 UserChoice 读取 https 默认浏览器 ProgId（Win10/11）
+    
     QSettings httpsChoice(
         "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice",
         QSettings::NativeFormat);
@@ -678,7 +759,7 @@ void AppController::openUrlDefaultBrowser(const QString &url)
         browserCmd = cmdKey.value(".").toString();
     }
 
-    // 2. 回退：http 关联
+    
     if (browserCmd.isEmpty()) {
         QSettings httpChoice(
             "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice",
@@ -691,7 +772,7 @@ void AppController::openUrlDefaultBrowser(const QString &url)
         }
     }
 
-    // 3. 回退：直接读 HKEY_CLASSES_ROOT\http
+    
     if (browserCmd.isEmpty()) {
         QSettings cmdKey("HKEY_CLASSES_ROOT\\http\\shell\\open\\command",
                          QSettings::NativeFormat);
@@ -699,14 +780,14 @@ void AppController::openUrlDefaultBrowser(const QString &url)
     }
 
     if (!browserCmd.isEmpty()) {
-        // 解析命令：拆分可执行文件和参数，替换 %1 为 URL
+        
         QStringList parts = QProcess::splitCommand(browserCmd);
         if (!parts.isEmpty()) {
             QString exe = parts.takeFirst();
             for (QString &arg : parts) {
                 if (arg == "%1") arg = url;
             }
-            // 如果没有 %1 占位符，直接把 URL 追加到参数末尾
+            
             if (!parts.contains(url)) {
                 bool hasPlaceholder = false;
                 for (const QString &a : parts) {
@@ -719,7 +800,7 @@ void AppController::openUrlDefaultBrowser(const QString &url)
         }
     }
 
-    // 最终回退
+    
     QDesktopServices::openUrl(QUrl(url));
 #else
     QDesktopServices::openUrl(QUrl(url));
@@ -728,6 +809,11 @@ void AppController::openUrlDefaultBrowser(const QString &url)
 
 void AppController::tryClose()
 {
+    
+    if (m_autoJoinTimer && m_autoJoinTimer->isActive()) {
+        emit closeDialogRequested();
+        return;
+    }
     if (m_closeBehavior == 1) {
         minimizeToTray();
     } else if (m_closeBehavior == 2) {
@@ -806,22 +892,24 @@ void AppController::openConfigFolder()
 
 void AppController::minimizeToTray()
 {
-    // 隐藏所有窗口
-    for (QWindow *w : QGuiApplication::allWindows()) {
-        w->hide();
+    if (m_mainWindow) {
+        m_mainWindow->hide();
     }
     if (m_tray) {
         m_tray->show();
-        showToastNotification("cs2挤服工具V4_1", "已最小化到托盘，双击托盘图标恢复");
+        QTimer::singleShot(100, [this]() {
+            showToastNotification("cs2挤服工具V4_1", "已最小化到托盘，双击托盘图标恢复");
+        });
     }
 }
 
 void AppController::showMainWindow()
 {
-    for (QWindow *w : QGuiApplication::allWindows()) {
-        w->showNormal();
-        w->requestActivate();
-        w->raise();
+    if (m_mainWindow) {
+        m_mainWindow->setVisibility(QWindow::Windowed);
+        m_mainWindow->show();
+        m_mainWindow->requestActivate();
+        m_mainWindow->raise();
     }
     if (m_tray) m_tray->hide();
 }
@@ -834,11 +922,95 @@ void AppController::quitApp()
 
 void AppController::showToastNotification(const QString &title, const QString &message)
 {
+    if (m_toastQueue.size() >= 5) return;
+    m_toastQueue.enqueue(qMakePair(title, message));
+    tryShowNextToast();
+}
+
+void AppController::tryShowNextToast()
+{
+    if (m_toastShowing) return;
+    if (m_toastQueue.isEmpty()) return;
+    auto item = m_toastQueue.dequeue();
+    m_toastShowing = true;
+    emit toastShowingChanged(true);
+    emit toastRequested(item.first, item.second);
+    
+    QTimer::singleShot(100, [item]() {
+        for (QWindow *w : QGuiApplication::allWindows()) {
+            if (w->objectName() == "toastFloatWindow") {
+                w->setFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+                QMetaObject::invokeMethod(w, "showToast",
+                    Qt::DirectConnection,
+                    Q_ARG(QString, item.first),
+                    Q_ARG(QString, item.second));
+                
+                QScreen *scr = QGuiApplication::primaryScreen();
+                if (!scr && QGuiApplication::screens().size() > 0) scr = QGuiApplication::screens().first();
+                if (scr) {
+                    QRect g = scr->availableGeometry();
+                    int margin = 16;
+                    int px = g.x() + g.width() - w->width() - margin;
+                    int py = g.y() + g.height() - w->height() - margin;
+                    w->setPosition(px, py);
+                    QTimer::singleShot(0, [w, px, py]() { w->setPosition(px, py); });
+                }
+                w->show();
+                w->raise();
+                break;
+            }
+        }
+    });
+    m_toastForceTimer->start();
+    startToastCooldown();
+    playNotificationSound();
+}
+
+void AppController::startToastCooldown()
+{
+    m_toastCooldown = true;
+    m_toastCooldownRemaining = 10;
+    emit toastCooldownRemainingChanged(10);
+    m_toastCooldownTimer->start();
+}
+
+void AppController::playNotificationSound()
+{
 #ifdef Q_OS_WIN
-    showSysNotification(title, message);
-#else
-    emit toastRequested(title, message);
+    if (!PlaySound(L"Notification.Default", NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT)) {
+        PlaySound(L"SystemAsterisk", NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT);
+    }
 #endif
+}
+
+void AppController::dismissToast()
+{
+    if (!m_toastShowing) return;
+    m_toastForceTimer->stop();
+    m_toastShowing = false;
+    emit toastShowingChanged(false);
+    if (!m_toastQueue.isEmpty()) {
+        m_toastGapTimer->start();
+    }
+}
+
+void AppController::positionFloatWindow()
+{
+    for (QWindow *w : QGuiApplication::allWindows()) {
+        if (w->objectName() == "floatStatusWindow") {
+            QScreen *scr = QGuiApplication::primaryScreen();
+            if (!scr && QGuiApplication::screens().size() > 0) scr = QGuiApplication::screens().first();
+            if (scr) {
+                QRect g = scr->availableGeometry();
+                int margin = 16;
+                int px = g.x() + g.width() - w->width() - margin;
+                int py = g.y() + g.height() - w->height() - margin;
+                w->setPosition(px, py);
+                QTimer::singleShot(0, [w, px, py]() { w->setPosition(px, py); });
+            }
+            break;
+        }
+    }
 }
 
 void AppController::applyWindowMask(QQuickWindow *window, int radius)
@@ -860,9 +1032,7 @@ void AppController::applyWindowMask(QQuickWindow *window, int radius)
 
 void AppController::updateWindowMask()
 {
-    if (!m_mainWindow) return;
-    if (m_dwmRoundedAvailable) return;
-    applyWindowMask(m_mainWindow, 20);
+    
 }
 
 static void applyWindowShadow(HWND hwnd)
@@ -884,6 +1054,11 @@ static void applyWindowShadow(HWND hwnd)
 bool AppController::applyDwmRoundedCorners(QQuickWindow *window)
 {
     if (!window) return false;
+    
+    if (QOperatingSystemVersion::current() < QOperatingSystemVersion::Windows11) {
+        qDebug() << "[DWM] Windows 10 detected, skip DWM rounded corners, use mask+renderer";
+        return false;
+    }
     HWND hwnd = (HWND)window->winId();
     if (!hwnd) return false;
 
@@ -919,41 +1094,40 @@ void AppController::setupRoundedCorners(QQuickWindow *window)
 {
     if (!window) return;
     m_mainWindow = window;
-    applyWindowMask(window, 20);
-    m_dwmRoundedAvailable = applyDwmRoundedCorners(window);
 
-    HWND hwnd = (HWND)window->winId();
-    applyWindowShadow(hwnd);
-
+    
+    m_dwmRoundedAvailable = false;
+    window->setMask(QRegion());
     if (m_roundedRenderer) {
         delete m_roundedRenderer;
         m_roundedRenderer = nullptr;
     }
     m_roundedRenderer = new RoundedCornerRenderer(window, this);
-    connect(m_roundedRenderer, &RoundedCornerRenderer::firstFrameReady, window, [this]() {
-        if (m_dwmRoundedAvailable) {
-            m_mainWindow->setMask(QRegion());
-            qDebug() << "[RoundedCorner] first frame ready, mask cleared (DWM active)";
-        } else {
-            qDebug() << "[RoundedCorner] first frame ready, mask kept (DWM unavailable, setMask fallback)";
-        }
-    });
+    m_roundedRenderer->setRadius(12.0f);
+    qDebug() << "[RoundedCorner] 9px mode: setMask empty, renderer=12, visual=9, border=9";
 
-    connect(window, &QQuickWindow::widthChanged, this, &AppController::updateWindowMask, Qt::DirectConnection);
-    connect(window, &QQuickWindow::heightChanged, this, &AppController::updateWindowMask, Qt::DirectConnection);
-    connect(window, &QQuickWindow::devicePixelRatioChanged, this, &AppController::updateWindowMask, Qt::DirectConnection);
-    connect(window, &QQuickWindow::windowStateChanged, this, [this](Qt::WindowState state) {
-        if (!m_mainWindow) return;
-        if (state == Qt::WindowMaximized) {
-            m_mainWindow->setMask(QRegion());
-            qDebug() << "[RoundedCorner] window maximized, mask cleared";
-        } else if (state == Qt::WindowNoState && !m_dwmRoundedAvailable) {
-            QTimer::singleShot(0, this, &AppController::updateWindowMask);
-            qDebug() << "[RoundedCorner] window restored, mask re-applied";
-        }
-    });
+    qDebug() << "[AppController] setupRoundedCorners done, DWM:" << m_dwmRoundedAvailable;
+}
 
-    qDebug() << "[AppController] RoundedCornerRenderer setup done, DWM available:" << m_dwmRoundedAvailable;
+void AppController::setWindowMaximized(bool maximized)
+{
+    if (!m_mainWindow) return;
+    HWND hwnd = (HWND)m_mainWindow->winId();
+    if (maximized) {
+        if (m_roundedRenderer) {
+            delete m_roundedRenderer;
+            m_roundedRenderer = nullptr;
+        }
+        if (hwnd) SetWindowRgn(hwnd, NULL, TRUE);
+        qDebug() << "[RoundedCorner] maximized: corners disabled";
+    } else {
+        if (hwnd) SetWindowRgn(hwnd, NULL, TRUE);
+        if (!m_roundedRenderer) {
+            m_roundedRenderer = new RoundedCornerRenderer(m_mainWindow, this);
+            m_roundedRenderer->setRadius(12.0f);
+        }
+        qDebug() << "[RoundedCorner] restored: renderer=12";
+    }
 }
 
 void AppController::notifyExistingInstance()
