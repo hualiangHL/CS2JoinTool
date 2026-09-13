@@ -27,9 +27,30 @@ Item {
     Timer { interval: 400; repeat: false; running: pageActive; onTriggered: showCard2 = true }
     Timer { interval: 800; repeat: false; running: pageActive; onTriggered: showCard3 = true }
 
+    Text {
+        id: settingsTitle
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 16
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        text: "设置"
+        font.family: App.Theme.fontFamily
+        font.bold: true
+        color: App.Theme.textPrimary
+        font.pixelSize: 22
+    }
+
     ScrollView {
-        anchors.fill: parent
-        anchors.margins: 16
+        anchors.top: settingsTitle.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.topMargin: 12
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.bottomMargin: 16
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -38,9 +59,7 @@ Item {
             width: settingsPage.width - 32 - 12
             spacing: 16
 
-            Text { id: staggerChild0; text: "设置"; font.family: App.Theme.fontFamily; font.bold: true; color: App.Theme.textPrimary; font.pixelSize: 22 }
-
-            // 外观设置
+            
             Rectangle {
                 width: parent.width
                 height: appearanceCol.height + 32
@@ -56,7 +75,7 @@ Item {
 
                     Text { text: "外观"; font.bold: true; color: App.Theme.textPrimary; font.pixelSize: 15 }
 
-                    // 背景图选择（下拉列表）
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "背景图"; color: App.Theme.textPrimary; font.pixelSize: 13; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
@@ -93,25 +112,32 @@ Item {
                         }
                     }
 
-                    // 全透明窗口模式
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "全透明窗口"; color: App.Theme.textPrimary; font.pixelSize: 13; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                        App.ESwitch { checked: appController.transparentWindow; onToggled: appController.transparentWindow = checked }
+                        App.ESwitch { checked: appController.transparentWindow; onToggled: appController.transparentWindow = !appController.transparentWindow }
                     }
 
-                    // 难度显示方式
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "难度T级显示"; color: App.Theme.textPrimary; font.pixelSize: 13; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
+                        Text {
+                            text: "[只是把难度更换一种显示方式 T0简单 T1普通 T2困难 T3极难 T4史诗 T5梦魇 T6绝境]"
+                            color: "#808080"
+                            font.pixelSize: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                            Layout.leftMargin: 8
+                        }
                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                        App.ESwitch { checked: appController.difficultyTierMode; onToggled: appController.difficultyTierMode = checked }
+                        App.ESwitch { checked: appController.difficultyTierMode; onToggled: appController.difficultyTierMode = !appController.difficultyTierMode }
                     }
                 }
             }
 
-            // 窗口设置
+            
             Rectangle {
                 id: staggerChild1
                 opacity: showCard1 ? 1 : 0
@@ -134,7 +160,7 @@ Item {
                         width: parent.width
                         Text { text: "启动时最小化到托盘"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                        App.ESwitch { checked: appController.startMinimizedToTray; onToggled: appController.startMinimizedToTray = checked }
+                        App.ESwitch { checked: appController.startMinimizedToTray; onToggled: appController.startMinimizedToTray = !appController.startMinimizedToTray }
                     }
 
                     RowLayout {
@@ -144,18 +170,18 @@ Item {
                         App.ESwitch {
                             id: floatWindowSwitch
                             checked: appController.floatWindowEnabled
-                            onToggled: appController.floatWindowEnabled = checked
+                            onToggled: appController.floatWindowEnabled = !appController.floatWindowEnabled
                         }
                     }
 
                     RowLayout {
                         width: parent.width
-                        Text { text: "Windows提示加入服务器通知"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
+                        Text { text: "加入服务器悬浮通知"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                        App.ESwitch { checked: appController.joinNotificationEnabled; onToggled: appController.joinNotificationEnabled = checked }
+                        App.ESwitch { checked: appController.joinNotificationEnabled; onToggled: appController.joinNotificationEnabled = !appController.joinNotificationEnabled }
                     }
 
-                    // 关闭行为下拉（同款背景图下拉）
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "关闭按钮行为"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
@@ -192,7 +218,7 @@ Item {
                         }
                     }
 
-                    // 网页菜单社区切换
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "网页菜单社区切换"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
@@ -231,7 +257,7 @@ Item {
                 }
             }
 
-            // 挤服设置
+            
             Rectangle {
                 id: staggerChild2
                 opacity: showCard2 ? 1 : 0
@@ -315,7 +341,7 @@ Item {
                             id: proModeSwitch
                             checked: appController.proMode
                             onToggled: {
-                                if (checked) {
+                                if (!appController.proMode) {
                                     proPasswordInput.text = ""
                                     proPasswordPopup.open()
                                 } else {
@@ -325,7 +351,7 @@ Item {
                         }
                     }
 
-                    // 默认挤服间隔
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "默认挤服间隔(ms)"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
@@ -390,7 +416,7 @@ Item {
 
                     Text { text: "查询超时(ms): 3000"; color: App.Theme.textSecondary; font.pixelSize: 12 }
 
-                    // 默认配置文件夹
+                    
                     RowLayout {
                         width: parent.width
                         Text { text: "默认配置文件夹"; color: App.Theme.textPrimary; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
@@ -438,7 +464,7 @@ Item {
                 }
             }
 
-            // 调试设置
+            
             Rectangle {
                 id: staggerChild3
                 opacity: showCard3 ? 1 : 0
@@ -461,14 +487,14 @@ Item {
                         width: parent.width
                         Text { text: "玩家列表数据"; color: App.Theme.textPrimary; font.pixelSize: 13; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                        App.ESwitch { checked: appController.debugPlayerList; onToggled: appController.debugPlayerList = checked }
+                        App.ESwitch { checked: appController.debugPlayerList; onToggled: appController.debugPlayerList = !appController.debugPlayerList }
                     }
                 }
             }
         }
     }
 
-    // 极速模式密码弹窗
+    
     Popup {
         id: proPasswordPopup
         width: 320
@@ -548,7 +574,7 @@ Item {
         }
     }
 
-    // ===== 自定义下拉列表（纯Rectangle，非独立窗口） =====
+    
     property bool bgDropdownOpen: false
     property real bgDropdownMask: 0
     property bool cbDropdownOpen: false
@@ -613,7 +639,7 @@ Item {
         }
     }
 
-    // 背景图下拉
+    
     Rectangle {
         id: bgDropdown
         visible: bgDropdownOpen || bgDropdownMask > 0.5
@@ -639,7 +665,7 @@ Item {
         }
     }
 
-    // 关闭行为下拉
+    
     Rectangle {
         id: cbDropdown
         visible: cbDropdownOpen || cbDropdownMask > 0.5
@@ -668,7 +694,7 @@ Item {
     NumberAnimation { id: bgDropdownAnim; target: settingsPage; property: "bgDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
     NumberAnimation { id: cbDropdownAnim; target: settingsPage; property: "cbDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
 
-    // 默认连接协议下拉
+    
     Rectangle {
         id: defaultProtoDropdown
         visible: defaultProtoDropdownOpen || defaultProtoDropdownMask > 0.5
@@ -696,7 +722,7 @@ Item {
 
     NumberAnimation { id: defaultProtoDropdownAnim; target: settingsPage; property: "defaultProtoDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
 
-    // 网页菜单社区下拉
+    
     Rectangle {
         id: webMenuDropdown
         visible: webMenuDropdownOpen || webMenuDropdownMask > 0.5
@@ -724,7 +750,7 @@ Item {
 
     NumberAnimation { id: webMenuDropdownAnim; target: settingsPage; property: "webMenuDropdownMask"; duration: 200; easing.type: Easing.OutCubic }
 
-    // 连接协议说明窗口
+    
     property bool protoHelpVisible: false
 
     Rectangle {
@@ -752,7 +778,7 @@ Item {
 
             MouseArea { anchors.fill: parent; propagateComposedEvents: false }
 
-            // 标题栏
+            
             Rectangle {
                 width: parent.width; height: 48
                 color: "transparent"
@@ -762,7 +788,7 @@ Item {
                     text: "连接协议说明"
                     color: App.Theme.textPrimary; font.pixelSize: 16; font.bold: true
                 }
-                // 关闭按钮
+                
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right; anchors.rightMargin: 16
@@ -781,14 +807,14 @@ Item {
                 }
             }
 
-            // 内容区 - 直接Column挂面板，不用中间容器
+            
             Column {
                 anchors.top: parent.top; anchors.topMargin: 56
                 anchors.left: parent.left; anchors.leftMargin: 20
                 anchors.right: parent.right; anchors.rightMargin: 20
                 spacing: 14
 
-                // 协议1卡片
+                
                 Rectangle {
                     width: parent.width
                     height: 168
@@ -808,7 +834,7 @@ Item {
                     }
                 }
 
-                // 协议2卡片
+                
                 Rectangle {
                     width: parent.width
                     height: 196
