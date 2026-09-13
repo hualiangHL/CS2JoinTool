@@ -19,7 +19,7 @@ static QString translateMap(const QString &mapName)
     if (name.isEmpty()) return "";
     QString lower = name.toLower();
     if (translationDict().contains(lower)) return translationDict().value(lower);
-    // 尝试去掉版本号
+    
     static QRegularExpression re("_v\\d+(?=_|$)");
     QString stripped = lower;
     stripped.remove(re);
@@ -91,7 +91,7 @@ SubEntry MapSubscriptionManager::parseEntry(const QString &raw)
 QString MapSubscriptionManager::stripMapVersion(const QString &mapName)
 {
     QString name = mapName.trimmed().toLower();
-    // 去掉常见版本/测试后缀
+    
     static QRegularExpression re("_v\\d+(?=_|$)");
     name.remove(re);
     static QRegularExpression re2("_final\\d*(?=_|$)");
@@ -216,7 +216,7 @@ void MapSubscriptionManager::checkServerMap(const QString &ip, int port, const Q
     m_lastNotifiedMap[key] = matched;
     qDebug() << "[MapSub] EMITTING notification for:" << matched;
 
-    // 地图中文名
+    
     QString mapCN = translateMap(mapName);
     if (mapCN.isEmpty() || mapCN == mapName) mapCN = mapName;
 
@@ -255,4 +255,3 @@ void MapSubscriptionManager::addServerMap(const QString &mapName)
     }
 }
 
-// 搜索在 QML 端完成，C++ 只通过 allMapNames 属性暴露全部地图名
