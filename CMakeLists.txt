@@ -65,7 +65,7 @@ target_link_libraries(CS2JoinTool PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(CS2JoinTool PRIVATE ws2_32)
+    target_link_libraries(CS2JoinTool PRIVATE ws2_32 winmm)
     set_target_properties(CS2JoinTool PROPERTIES
         WIN32_EXECUTABLE TRUE
     )
