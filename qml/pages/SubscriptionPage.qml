@@ -33,7 +33,7 @@ Rectangle {
     }
     function clearSelection() { selectedIndexes = [] }
     function deleteSelected() {
-        // 从大到小删除，避免索引偏移
+        
         var sorted = selectedIndexes.slice().sort(function(a,b){return b-a})
         for (var i = 0; i < sorted.length; i++) {
             subscriptionManager.removeSubscription(sorted[i])
@@ -42,12 +42,12 @@ Rectangle {
     }
     function doAddSubscription(mapName) {
         if (!mapName) return
-        // 全部社区或空 → 单个全社区订阅
+        
         if (selectedCommunities.length === 0 || (selectedCommunities.length === 1 && selectedCommunities[0] === "全部社区")) {
             subscriptionManager.addSubscription(mapName, "")
             return
         }
-        // 多社区 → 每个社区加一条
+        
         for (var i = 0; i < selectedCommunities.length; i++) {
             subscriptionManager.addSubscription(mapName, selectedCommunities[i])
         }
@@ -59,7 +59,7 @@ Rectangle {
         anchors.margins: 20
         spacing: 12
 
-        // 标题
+        
         Text {
             Layout.fillWidth: true
             text: "地图订阅"
@@ -71,14 +71,14 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            text: "订阅的地图出现在任意服务器时，通过 Windows 系统通知提醒你。全部社区：所有社区的该地图都会提醒；指定社区：仅该社区提醒。"
+            text: "订阅的地图出现在任意服务器时 通过右下角悬浮窗窗口通知提醒你\n全部社区：所有社区都会提醒通知\n指定社区：仅该社区提醒通知"
             color: "#D0D0D0"
             font.pixelSize: 12
             wrapMode: Text.WordWrap
-            lineHeight: 1.4
+            lineHeight: 1.5
         }
 
-        // 工具栏（跟服务器列表同款深色风格）
+        
         RowLayout {
                 id: staggerChild0
                 
@@ -86,7 +86,7 @@ Rectangle {
             Layout.preferredHeight: 36
             spacing: 8
 
-            // 社区多选下拉
+            
             Rectangle {
                 id: commDropBtn
                 Layout.preferredWidth: 130
@@ -184,7 +184,7 @@ Rectangle {
                 }
             }
 
-            // 添加按钮（深色风格）
+            
             Rectangle {
                 id: addBtn
                 Layout.preferredWidth: 80
@@ -208,20 +208,38 @@ Rectangle {
                 }
             }
 
-            // 通知测试按钮（深色风格）
+            
             Rectangle {
-                Layout.preferredWidth: 80
+                Layout.preferredWidth: 100
                 Layout.preferredHeight: 36
                 radius: 8
-                color: testMouse.containsMouse ? "#d0252040" : "#b01E1B2E"
-                border.width: 1; border.color: testMouse.containsMouse ? App.Theme.primary : "#FF2D3245"
+                color: {
+                    if (appController.toastCooldownRemaining > 0) return "#70383848"
+                    return testMouse.containsMouse ? "#d0252040" : "#b01E1B2E"
+                }
+                border.width: 1
+                border.color: {
+                    if (appController.toastCooldownRemaining > 0) return "#40707080"
+                    return testMouse.containsMouse ? App.Theme.primary : "#FF2D3245"
+                }
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Behavior on border.color { ColorAnimation { duration: 150 } }
-                Text { anchors.centerIn: parent; text: "通知测试"; color: "#FFFFFF"; font.pixelSize: 13 }
-                MouseArea { id: testMouse; anchors.fill: parent; hoverEnabled: true; onClicked: subscriptionManager.testNotification() }
+                Text {
+                    anchors.centerIn: parent
+                    text: appController.toastCooldownRemaining > 0 ? "冷却中 " + appController.toastCooldownRemaining + "s" : "通知测试"
+                    color: appController.toastCooldownRemaining > 0 ? "#8090A0" : "#FFFFFF"
+                    font.pixelSize: 13
+                }
+                MouseArea {
+                    id: testMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    enabled: appController.toastCooldownRemaining <= 0 && !appController.toastShowing
+                    onClicked: subscriptionManager.testNotification()
+                }
             }
 
-            // 删除选中按钮（深色风格，有选中项时高亮）
+            
             Rectangle {
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 36
@@ -251,7 +269,7 @@ Rectangle {
                 }
             }
         }
-        // 全选/取消全选行
+        
         Row {
             Layout.fillWidth: true
             spacing: 8
@@ -280,7 +298,7 @@ Rectangle {
             }
         }
 
-        // 订阅列表
+        
         Rectangle {
                 id: staggerChild1
                 opacity: showCard1 ? 1 : 0
@@ -340,7 +358,7 @@ Rectangle {
                                 border.color: isSelected(index) ? "#60A78BFA" : "#15A78BFA"
                                 Behavior on color { ColorAnimation { duration: 120 } }
 
-                                // 复选框（纯视觉）
+                                
                                 Rectangle {
                                     anchors.left: parent.left
                                     anchors.leftMargin: 10
@@ -366,7 +384,7 @@ Rectangle {
                         }
                     }
 
-                    // 空状态
+                    
                     Text {
                         visible: subscriptionManager.subscribedMaps.length === 0
                         width: parent.width
@@ -389,7 +407,7 @@ Rectangle {
             }
         }
     }
-    // 点击外部关闭自动补全
+    
     MouseArea {
         id: acDismissArea
         anchors.fill: parent
@@ -397,7 +415,7 @@ Rectangle {
         visible: acPopup.acOpen
         onClicked: {
             acPopup.closeAnimated()
-            // 检测点击是否落在添加按钮上，是则执行添加
+            
             var pt = addBtn.mapToItem(subscriptionPage, 0, 0)
             if (mouse.x >= pt.x && mouse.x <= pt.x + addBtn.width &&
                 mouse.y >= pt.y && mouse.y <= pt.y + addBtn.height) {
@@ -409,7 +427,7 @@ Rectangle {
         }
     }
 
-    // 地图名自动补全弹出层
+    
     Rectangle {
         id: acPopup
         property var acResults: []
@@ -483,7 +501,7 @@ Rectangle {
             }
         }
 
-        // 自定义滚动条
+        
         Rectangle {
             id: acScrollbar
             anchors.right: parent.right; anchors.rightMargin: 1
@@ -507,7 +525,7 @@ Rectangle {
 
         function showResults(list) {
             acResults = list
-            // 动态计算位置（在打开时计算，确保布局已完成）
+            
             var pt = mapInput.mapToItem(subscriptionPage, 0, mapInput.height + 2)
             acPopup.x = pt.x
             acPopup.y = pt.y
@@ -530,7 +548,7 @@ Rectangle {
         }
     }
 
-    // 点击外部关闭遮罩
+    
     MouseArea {
         anchors.fill: parent
         z: 998
@@ -538,7 +556,7 @@ Rectangle {
         onClicked: commDropdownOpen = false
     }
 
-    // 社区下拉面板（自定义，完全可控）
+    
     Rectangle {
         id: commDropdown
         z: 999
