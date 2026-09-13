@@ -76,4 +76,4 @@ private:
     void handleChallenge(const QByteArray &data);
 };
 
-#endif // SERVERQUERY_H
+#endif 
