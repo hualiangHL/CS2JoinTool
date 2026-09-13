@@ -23,11 +23,11 @@ Item {
     Timer { interval: 180; repeat: false; running: pageActive; onTriggered: showCard1 = true }
     Timer { interval: 360; repeat: false; running: pageActive; onTriggered: showCard2 = true }
 
-    // 折叠状态：默认全部折叠，expandedGroups存储已展开的分类
+    
     property int collapseVersion: 0
     property var expandedGroups: ({})
 
-    // 挤服面板
+    
     property bool joinPanelVisible: false
     property int selectedServerIndex: -1
     property var selectedServer: ({})
@@ -36,24 +36,24 @@ Item {
     property int runtimeTick: 0
     Timer { interval: 500; repeat: true; running: true; onTriggered: runtimeTick++ }
 
-    // 从Steam创意工坊获取地图预览图
+    
     function loadWorkshopMapPreview(mapName) {
         workshopPreviewUrl = ""
         currentPreviewMap = mapName
         if (!mapName) return
-        // 1. 先查本地map_db和已扫描地图
+        
         var wsid = workshopManager.findWorkshopId(mapName)
         if (wsid) {
             fetchPreviewById(wsid, mapName)
             return
         }
-        // 2. 本地没有，从Steam社区搜索页面提取workshop ID
+        
         var xhr = new XMLHttpRequest()
         var searchUrl = "https://steamcommunity.com/workshop/browse/?appid=730&searchtext=" + encodeURIComponent(mapName) + "&browsesort=textmatch&actualsearch=1"
         xhr.open("GET", searchUrl, true)
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                if (currentPreviewMap !== mapName) return  // 已切换地图，丢弃旧结果
+                if (currentPreviewMap !== mapName) return  
                 try {
                     var html = xhr.responseText
                     var idMatch = html.match(/filedetails\/\?id=(\d+)/)
@@ -69,14 +69,14 @@ Item {
         xhr.send()
     }
 
-    // 通过workshop ID获取预览图URL
+    
     function fetchPreviewById(wsid, mapName) {
         var xhr = new XMLHttpRequest()
         xhr.open("POST", "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", true)
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                if (currentPreviewMap !== mapName) return  // 已切换地图，丢弃旧结果
+                if (currentPreviewMap !== mapName) return  
                 try {
                     var data = JSON.parse(xhr.responseText)
                     if (data.response && data.response.publishedfiledetails && data.response.publishedfiledetails.length > 0) {
@@ -92,7 +92,7 @@ Item {
         xhr.send("itemcount=1&publishedfileids[0]=" + wsid)
     }
 
-    // 监听currentMap变化，自动加载创意工坊预览图
+    
     Connections {
         target: appController
         function onCurrentMapChanged() {
@@ -109,16 +109,16 @@ Item {
             appController.serverIp = selectedServer.ip
             appController.serverPort = selectedServer.port
         }
-        // 每次打开挤服面板，间隔重置为设置页的默认间隔
+        
         appController.interval = appController.defaultJoinInterval
         panelIntervalSlider.value = appController.interval
         thresholdInput.text = appController.joinThreshold
-        // 每次打开挤服面板，自动应用设置页的默认连接协议
+        
         appController.connectProtocol = appController.defaultConnectProtocol
         joinPanelVisible = true
-        // 打开面板时自动实时查询服务器状态
+        
         appController.queryServer()
-        // 如果已有地图名，立即加载创意工坊预览图
+        
         if (appController.currentMap) loadWorkshopMapPreview(appController.currentMap)
     }
 
@@ -131,7 +131,7 @@ Item {
         collapseVersion++
     }
 
-    // 分类右键菜单
+    
     property string menuCommunity: ""
     property bool communityMenuVisible: false
     property bool communityMenuClosing: false
@@ -170,7 +170,7 @@ Item {
         closeCommunityMenu()
     }
 
-    // 服务器右键菜单
+    
     property int menuServerIndex: -1
     property bool serverMenuVisible: false
     property bool serverMenuClosing: false
@@ -210,7 +210,7 @@ Item {
     function serverMenuAction(action) {
         if (!menuServer) { closeServerMenu(); return }
         if (action === "join") {
-            serverManager.joinServer(menuServerIndex)
+            serverManager.joinServer(menuServerIndex, appController.defaultConnectProtocol)
         } else if (action === "copy") {
             serverManager.copyAddress(menuServerIndex)
         } else if (action === "home") {
@@ -223,7 +223,7 @@ Item {
         closeServerMenu()
     }
 
-    // 地图成就面板
+    
     property bool achievementVisible: false
     property bool achievementClosing: false
     property string achievementMapName: ""
@@ -232,7 +232,7 @@ Item {
     function showMapAchievement(mapName) {
         achievementMapName = mapName
         achievementData = null
-        // 从冷却数据中查找匹配地图
+        
         var maps = cooldownManager.filteredMaps
         for (var i = 0; i < maps.length; i++) {
             if (maps[i].enName === mapName || maps[i].displayName.indexOf(mapName) >= 0) {
@@ -259,7 +259,7 @@ Item {
         }
     }
 
-    // 地图翻译由 C++ 层 (serverManager.mapTranslate) 提供
+    
 
     function mapTranslate(mapName) {
         if (!mapName) return ""
@@ -278,7 +278,7 @@ Item {
         anchors.margins: 16
         spacing: 12
 
-        // 标题栏
+        
         RowLayout {
             width: mainCol.width
             spacing: 10
@@ -286,7 +286,7 @@ Item {
             Item { Layout.fillWidth: true }
         }
 
-        // 搜索筛选（所有控件统一36px高度，深色风格）
+        
         RowLayout {
             id: staggerChild1
             opacity: showCard1 ? 1 : 0
@@ -294,7 +294,7 @@ Item {
             width: mainCol.width
             spacing: 8
 
-            // 搜索框
+            
             TextField {
                 Layout.fillWidth: true
                 implicitHeight: 36
@@ -307,7 +307,7 @@ Item {
                 placeholderTextColor: "#607080"
             }
 
-            // 排序下拉框（完全自定义，无ComboBox作用域问题）
+            
             Rectangle {
                 id: sortDropBtn
                 Layout.preferredWidth: 120
@@ -353,7 +353,7 @@ Item {
 
             }
 
-            // 隐藏离线（自定义CheckBox）
+            
             Rectangle {
                 Layout.preferredWidth: 96
                 implicitHeight: 36
@@ -377,7 +377,7 @@ Item {
                 }
             }
 
-            // 刷新全部按钮（自定义风格）
+            
             Rectangle {
                 Layout.preferredWidth: 96
                 implicitHeight: 36
@@ -400,7 +400,7 @@ Item {
             }
         }
 
-        // 可滚动列表
+        
         Flickable {
             id: staggerChild2
             opacity: showCard2 ? 1 : 0
@@ -450,7 +450,7 @@ Item {
                             return expandedGroups[itemCol.srv.community] === true
                         }
 
-                        // 分类标题
+                        
                         Rectangle {
                             width: itemCol.width
                             height: itemCol.isFirstInGroup ? 42 : 0
@@ -500,7 +500,7 @@ Item {
                             }
                         }
 
-                        // 服务器卡片（名称+IP+人数+连接按钮）
+                        
                         Rectangle {
                             width: itemCol.width - 20
                             anchors.left: parent.left; anchors.leftMargin: 20
@@ -535,9 +535,9 @@ Item {
                                 }
                             }
 
-                            // ===== 纯 anchors 绝对定位，杜绝任何偏移 =====
+                            
 
-                            // 左侧：游戏名称+IP（固定400px宽，确保长名称完整显示）
+                            
                             Column {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 12
@@ -559,7 +559,7 @@ Item {
                                 }
                             }
 
-                            // 中间：地图名称（居中，固定宽度确保位置统一）
+                            
                             Row {
                                 id: mapRow
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -588,7 +588,7 @@ Item {
                                 }
                             }
 
-                            // 游玩时间（锚定玩家数左边，固定间距，不随窗口大小变化）
+                            
                             Column {
                                 anchors.right: playerCountText.left
                                 anchors.rightMargin: 24
@@ -617,24 +617,34 @@ Item {
                                 }
                             }
 
-                            // 播放图标按钮（贴卡片最右边，固定32x32）
+                            
                             Rectangle {
                                 id: playBtn
                                 width: 32; height: 32; radius: 9
                                 anchors.right: parent.right
                                 anchors.rightMargin: 28
                                 anchors.verticalCenter: parent.verticalCenter
-                                color: "#601E1B2E"
+                                color: playMouse.containsMouse ? "#40A78BFA" : "#601E1B2E"
                                 border.width: 1.5; border.color: playMouse.containsMouse ? App.Theme.primary : App.Theme.border
+                                scale: playMouse.containsMouse ? 1.12 : 1.0
+                                Behavior on color { ColorAnimation { duration: 150 } }
                                 Behavior on border.color { ColorAnimation { duration: 150 } }
+                                Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
-                                MouseArea { id: playMouse; anchors.fill: parent; hoverEnabled: true; onClicked: serverManager.joinServer(index) }
+                                MouseArea {
+                                    id: playMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onContainsMouseChanged: playCanvas.requestPaint()
+                                    onClicked: serverManager.joinServer(index, appController.defaultConnectProtocol)
+                                }
 
                                 Canvas {
+                                    id: playCanvas
                                     anchors.centerIn: parent; width: 12; height: 14
                                     onPaint: {
                                         var ctx = getContext("2d"); ctx.reset()
-                                        ctx.fillStyle = playMouse.containsMouse ? App.Theme.primary : "#a0e8d8"
+                                        ctx.fillStyle = playMouse.containsMouse ? "#FFFFFF" : "#a0e8d8"
                                         ctx.beginPath()
                                         ctx.moveTo(1, 1); ctx.lineTo(11, 7); ctx.lineTo(1, 13)
                                         ctx.closePath(); ctx.fill()
@@ -642,7 +652,7 @@ Item {
                                 }
                             }
 
-                            // 状态/玩家数（右边缘永远距播放按钮8px，固定60px宽，文字右对齐）
+                            
                             Text {
                                 id: playerCountText
                                 anchors.right: playBtn.left
@@ -662,7 +672,7 @@ Item {
         }
     }
 
-    // ===== 挤服面板（居中模态，非独立窗口）=====
+    
     Rectangle {
         id: joinPanelMask
         anchors.fill: parent
@@ -689,10 +699,10 @@ Item {
             Behavior on scale { NumberAnimation { duration: joinPanelVisible ? 280 : 150; easing.type: joinPanelVisible ? Easing.OutBack : Easing.InCubic } }
             Behavior on opacity { NumberAnimation { duration: joinPanelVisible ? 220 : 120 } }
 
-            // 拦截面板内所有鼠标事件，防止冒泡到遮罩导致面板关闭
+            
             MouseArea { anchors.fill: parent; propagateComposedEvents: false }
 
-            // 顶部标题栏
+            
             Rectangle {
                 id: panelHeader
                 width: parent.width
@@ -730,7 +740,7 @@ Item {
                     }
                 }
 
-                // 人数徽章
+                
                 Rectangle {
                     id: panelPlayerBadge
                     anchors.right: parent.right
@@ -748,7 +758,7 @@ Item {
                     }
                 }
 
-                // 关闭按钮
+                
                 Rectangle {
                     id: panelCloseBtn
                     anchors.right: parent.right
@@ -771,7 +781,7 @@ Item {
                 }
             }
 
-            // 地图预览图（Steam创意工坊）
+            
             Rectangle {
                 id: mapPreviewArea
                 width: parent.width
@@ -792,7 +802,7 @@ Item {
                     }
                 }
 
-                // 无预览图占位
+                
                 Rectangle {
                     id: mapPlaceholder
                     anchors.fill: parent
@@ -817,7 +827,7 @@ Item {
                     }
                 }
 
-                // 底部渐变遮罩
+                
                 Rectangle {
                     anchors.bottom: parent.bottom
                     width: parent.width
@@ -828,7 +838,7 @@ Item {
                     }
                 }
 
-                // 地图名称叠加
+                
                 Column {
                     anchors.left: parent.left
                     anchors.leftMargin: 16
@@ -858,14 +868,14 @@ Item {
                 }
             }
 
-            // 内容区域
+            
             ColumnLayout {
                 anchors.fill: parent
                 anchors.topMargin: 222
                 anchors.margins: 22
                 spacing: 16
 
-                // 服务器状态行
+                
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.topMargin: 18
@@ -892,10 +902,10 @@ Item {
                     }
                 }
 
-                // 分隔线
+                
                 Rectangle { Layout.fillWidth: true; height: 1; color: "#201E1B2E" }
 
-                // 进入人数阈值
+                
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
@@ -938,10 +948,10 @@ Item {
                     Text { text: "人"; color: App.Theme.textSecondary; font.pixelSize: 12 }
                 }
 
-                // 分隔线
+                
                 Rectangle { Layout.fillWidth: true; height: 1; color: "#201E1B2E" }
 
-                // 挤服间隔
+                
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 8
@@ -981,7 +991,7 @@ Item {
                     }
                 }
 
-                // 连接协议
+                
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 8
@@ -1025,7 +1035,7 @@ Item {
 
                 Item { Layout.fillHeight: true }
 
-                // 按钮行
+                
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
@@ -1058,7 +1068,7 @@ Item {
         }
     }
 
-    // ===== 分类右键菜单 =====
+    
     Rectangle {
         id: communityMenu
         width: 120
@@ -1101,7 +1111,7 @@ Item {
         }
     }
 
-    // 点击菜单外关闭
+    
     MouseArea {
         anchors.fill: parent
         visible: communityMenuVisible
@@ -1109,7 +1119,7 @@ Item {
         onClicked: closeCommunityMenu()
     }
 
-    // ===== 服务器右键菜单 =====
+    
     Rectangle {
         id: serverMenu
         width: 140
@@ -1192,7 +1202,7 @@ Item {
         }
     }
 
-    // 服务器菜单外点击关闭
+    
     MouseArea {
         anchors.fill: parent
         visible: serverMenuVisible
@@ -1200,7 +1210,7 @@ Item {
         onClicked: closeServerMenu()
     }
 
-    // ===== 地图成就面板 =====
+    
     Rectangle {
         id: achMask
         anchors.fill: parent
@@ -1274,7 +1284,7 @@ Item {
         }
     }
 
-    // 按团队筛选UB玩家，team=-1显示全部，team=3=CT，team=2=T，team=0/1=观察者
+    
     function filterUBPlayers(clients, team) {
         var result = []
         if (!clients) return result
@@ -1292,7 +1302,7 @@ Item {
         return result
     }
 
-    // 玩家列表面板
+    
     property bool playerListVisible: false
     property bool playerListClosing: false
     property var playerListServer: null
@@ -1304,12 +1314,12 @@ Item {
         playerListServer = server
         playerListError = ""
         playerListClosing = false
-        // 重置旧数据，防止切换服务器时残留
+        
         isUBServer = false
         ubPlayerData = null
         playerQuery.clearPlayers()
         playerListVisible = true
-        // 检测是否是UB服务器
+        
         var ubSrv = ubManager.findServer(server.ip, server.port)
         isUBServer = ubSrv && Object.keys(ubSrv).length > 0
         ubPlayerData = isUBServer ? ubSrv : null
@@ -1340,7 +1350,7 @@ Item {
         }
     }
 
-    // ===== 玩家列表面板 =====
+    
     Rectangle {
         id: plMask
         anchors.fill: parent
@@ -1403,7 +1413,7 @@ Item {
 
                 Rectangle { Layout.fillWidth: true; height: 1; color: "#20A78BFA" }
 
-                // 玩家列表
+                
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -1424,7 +1434,7 @@ Item {
                             width: playerScrollView.width - 12
                             spacing: 4
 
-                            // 查询中
+                            
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 80
@@ -1437,7 +1447,7 @@ Item {
                                 }
                             }
 
-                            // 错误
+                            
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 100
@@ -1459,7 +1469,7 @@ Item {
                                 }
                             }
 
-                            // 空列表
+                            
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 100
@@ -1472,7 +1482,7 @@ Item {
                                 }
                             }
 
-                            // 玩家项（非UB服务器用A2S_PLAYER普通列表）
+                            
                             Repeater {
                                 model: playerQuery.players
                                 visible: !isUBServer && !playerQuery.querying && playerListError === ""
@@ -1523,13 +1533,13 @@ Item {
                                 }
                             }
 
-                            // ===== UB服务器玩家列表（MoeUB风格胶囊标签） =====
+                            
                             Column {
                                 Layout.fillWidth: true
                                 spacing: 14
                                 visible: isUBServer
 
-                                // 调试信息（受设置开关控制）
+                                
                                 Text {
                                     visible: appController.debugPlayerList
                                     text: {
@@ -1547,7 +1557,7 @@ Item {
                                     Layout.fillWidth: true
                                 }
 
-                                // CT阵营
+                                
                                 Column {
                                     id: ctCol
                                     width: parent.width
@@ -1569,6 +1579,7 @@ Item {
                                         Repeater {
                                             model: serverListPage.filterUBPlayers(ubPlayerData ? ubPlayerData.clients : [], 3)
                                             delegate: Rectangle {
+                                                id: ctCapsule
                                                 height: 26; radius: 13
                                                 width: Math.min(140, ctName.implicitWidth + 20)
                                                 color: {
@@ -1584,12 +1595,14 @@ Item {
                                                 Row {
                                                     anchors.centerIn: parent
                                                     spacing: 3
+                                                    width: parent.width - 16
                                                     Text {
                                                         id: ctName
                                                         text: modelData.name || "未命名"
                                                         color: modelData.commander > 0 ? "#FFD700" : "#FFFFFF"
                                                         font.pixelSize: 12
                                                         elide: Text.ElideRight; maximumLineCount: 1
+                                                        width: parent.width
                                                     }
                                                 }
                                                 MouseArea { id: plCtMouse; anchors.fill: parent; hoverEnabled: true }
@@ -1598,8 +1611,8 @@ Item {
                                     }
                                 }
 
-                                // 僵尸
-                                // T阵营
+                                
+                                
                                 Column {
                                     id: tCol
                                     width: parent.width
@@ -1621,6 +1634,7 @@ Item {
                                         Repeater {
                                             model: serverListPage.filterUBPlayers(ubPlayerData ? ubPlayerData.clients : [], 2)
                                             delegate: Rectangle {
+                                                id: tCapsule
                                                 height: 26; radius: 13
                                                 width: Math.min(140, tName.implicitWidth + 20)
                                                 color: {
@@ -1636,12 +1650,14 @@ Item {
                                                 Row {
                                                     anchors.centerIn: parent
                                                     spacing: 3
+                                                    width: parent.width - 16
                                                     Text {
                                                         id: tName
                                                         text: modelData.name || "未命名"
                                                         color: modelData.commander > 0 ? "#FFD700" : "#FFFFFF"
                                                         font.pixelSize: 12
                                                         elide: Text.ElideRight; maximumLineCount: 1
+                                                        width: parent.width
                                                     }
                                                 }
                                                 MouseArea { id: plT2Mouse; anchors.fill: parent; hoverEnabled: true }
@@ -1650,7 +1666,7 @@ Item {
                                     }
                                 }
 
-                                // 观察者
+                                
                                 Column {
                                     id: obsCol
                                     width: parent.width
@@ -1672,6 +1688,7 @@ Item {
                                         Repeater {
                                             model: serverListPage.filterUBPlayers(ubPlayerData ? ubPlayerData.clients : [], 0)
                                             delegate: Rectangle {
+                                                id: obsCapsule
                                                 height: 26; radius: 13
                                                 width: Math.min(140, obsName.implicitWidth + 20)
                                                 color: {
@@ -1687,12 +1704,14 @@ Item {
                                                 Row {
                                                     anchors.centerIn: parent
                                                     spacing: 3
+                                                    width: parent.width - 16
                                                     Text {
                                                         id: obsName
                                                         text: modelData.name || "未命名"
                                                         color: modelData.commander > 0 ? "#FFD700" : "#FFFFFF"
                                                         font.pixelSize: 12
                                                         elide: Text.ElideRight; maximumLineCount: 1
+                                                        width: parent.width
                                                     }
                                                 }
                                                 MouseArea { id: plObsMouse; anchors.fill: parent; hoverEnabled: true }
@@ -1701,7 +1720,7 @@ Item {
                                     }
                                 }
 
-                                // UB空状态
+                                
                                 Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 80
@@ -1727,7 +1746,7 @@ Item {
         }
     }
 
-    // ===== 自定义下拉列表（纯Rectangle，非独立窗口） =====
+    
     property bool sortDropdownOpen: false
     property real sortDropdownMask: 0
     property bool panelProtoDropdownOpen: false
@@ -1764,7 +1783,7 @@ Item {
         }
     }
 
-    // 排序下拉
+    
     Rectangle {
         id: sortDropdown
         visible: sortDropdownOpen || sortDropdownMask > 0.5
@@ -1790,7 +1809,7 @@ Item {
         }
     }
 
-    // 挤服面板连接协议下拉
+    
     Rectangle {
         id: panelProtoDropdown
         visible: panelProtoDropdownOpen || panelProtoDropdownMask > 0.5
