@@ -28,7 +28,7 @@ UBServerManager::UBServerManager(QObject *parent)
     m_pingTimer->setInterval(25000);
     connect(m_pingTimer, &QTimer::timeout, this, &UBServerManager::sendPing);
 
-    // 软件启动1秒后自动连接（服务器列表中的UB服务器需要实时数据）
+    
     QTimer::singleShot(1000, this, &UBServerManager::connectWS);
 }
 
@@ -246,12 +246,12 @@ void UBServerManager::handleTextMessage(const QByteArray &message)
     QString event = obj.value("event").toString();
     QJsonObject data = obj.value("data").toObject();
 
-    // 打印所有事件类型，方便找指挥事件
+    
     if (!event.startsWith("server/client/team") && !event.startsWith("server/client/spawn") && !event.startsWith("server/client/death")) {
         qDebug() << "[UB] event:" << event << "data keys:" << data.keys();
     }
 
-    // client相关事件的server/client字段在顶层，合并到data里
+    
     if (event.startsWith("server/client/") || event == "server/levelchange") {
         if (obj.contains("server")) data["server"] = obj.value("server");
         if (obj.contains("client")) data["client"] = obj.value("client");
@@ -274,7 +274,7 @@ void UBServerManager::handleTextMessage(const QByteArray &message)
     } else if (event == "server/levelchange") {
         handleLevelChange(data.toVariantMap());
     } else if (event == "server/client/team" || event == "server/client/spawn" || event == "server/client/death") {
-        // 玩家团队/出生/死亡事件，更新对应玩家的alive/team
+        
         handleClientStatusUpdate(data.toVariantMap());
     }
 }
@@ -309,7 +309,7 @@ void UBServerManager::handleServerInit(const QVariantMap &data)
     for (int i = 0; i < clients.size(); i++) {
         QVariantMap cm = clients[i].toMap();
         if (cm.value("alive", true).toBool()) aliveCount++;
-        // WebSocket直接提供commander布尔字段
+        
         bool isCmd = cm.value("commander", false).toBool();
         cm["commander"] = isCmd ? 1 : 0;
         if (isCmd) {
@@ -351,7 +351,7 @@ void UBServerManager::handleClientConnected(const QVariantMap &data)
     client["steam64"] = data.value("steam64").toString();
     client["alive"] = data.value("alive", true).toBool();
     client["team"] = data.value("team", 0).toInt();
-    // WebSocket直接提供commander布尔字段
+    
     client["commander"] = data.value("commander", false).toBool() ? 1 : 0;
     clients.append(client);
 
