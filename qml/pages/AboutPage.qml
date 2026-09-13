@@ -18,9 +18,44 @@ Item {
     Timer { interval: 200; repeat: false; running: pageActive; onTriggered: showCard1 = true }
     Timer { interval: 400; repeat: false; running: pageActive; onTriggered: showCard2 = true }
 
+    Column {
+        id: aboutHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: 16
+        spacing: 8
+
+        Image {
+            width: 56; height: 56
+            source: "qrc:/assets/app_icon_128.png"
+            sourceSize: Qt.size(128, 128)
+            fillMode: Image.PreserveAspectFit
+            mipmap: true
+            smooth: true
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        Text {
+            text: "cs2挤服工具V4_1"
+            font.bold: true; color: App.Theme.textPrimary; font.pixelSize: 18
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        Text {
+            text: "EvolveUI Edition"
+            color: App.Theme.textSecondary; font.pixelSize: 12
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
+
     ScrollView {
-        anchors.fill: parent
-        anchors.margins: 16
+        anchors.top: aboutHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.topMargin: 12
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.bottomMargin: 16
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -29,32 +64,7 @@ Item {
             width: aboutPage.width - 32
             spacing: 16
 
-            // Logo和标题
-            Column {
-                width: parent.width
-                spacing: 8
-                Image {
-                    width: 64; height: 64
-                    source: "qrc:/assets/app_icon_128.png"
-                    sourceSize: Qt.size(128, 128)
-                    fillMode: Image.PreserveAspectFit
-                    mipmap: true
-                    smooth: true
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Text {
-                    text: "cs2挤服工具V4_1"
-                    font.bold: true; color: App.Theme.textPrimary; font.pixelSize: 20
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Text {
-                    text: "EvolveUI Edition"
-                    color: App.Theme.textSecondary; font.pixelSize: 13
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
-
-            // 功能特性
+            
             Rectangle {
                 id: staggerChild0
                 width: parent.width
@@ -80,7 +90,7 @@ Item {
                 }
             }
 
-            // 技术信息
+            
             Rectangle {
                 id: staggerChild1
                 opacity: showCard1 ? 1 : 0
@@ -118,7 +128,7 @@ Item {
                 }
             }
 
-            // 开源致谢
+            
             Rectangle {
                 id: staggerChild2
                 opacity: showCard2 ? 1 : 0
