@@ -24,6 +24,7 @@
         <file>assets/app_icon.png</file>
         <file>assets/app_icon_128.png</file>
         <file>assets/app_icon_64.png</file>
+        <file>assets/app_icon_new.png</file>
         <file>assets/notify_icon.png</file>
         <file>shaders/roundcorner.frag.qsb</file>
         <file>assets/bg.jpg</file>
