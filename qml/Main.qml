@@ -12,11 +12,25 @@ ApplicationWindow {
     height: 720
     minimumWidth: 900
     minimumHeight: 600
+    property real globalScale: 1.0
     color: "transparent"
     flags: Qt.Window | Qt.FramelessWindowHint
     title: "cs2挤服工具V4_1"
     property bool joinDetailVisible: false
     property int currentPage: 0
+
+    function getScreenScale() {
+        var scr = mainWindow.screen || Qt.application.primaryScreen
+        if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
+        if (scr && scr.availableGeometry) {
+            var g = scr.availableGeometry
+            var diag = Math.sqrt(g.width * g.width + g.height * g.height)
+            var baseDiag = Math.sqrt(1920 * 1920 + 1080 * 1080)
+            var s = diag / baseDiag
+            return Math.max(0.7, Math.min(s, 2.0))
+        }
+        return 1.0
+    }
 
     Connections {
         target: appController
@@ -29,7 +43,7 @@ ApplicationWindow {
         }
     }
 
-    // 背景图轮播（新图先100%底层显示，旧图上层淡出，全程不透明）
+    
     property var bgSources: ["qrc:/assets/bg1.jpg", "qrc:/assets/bg2.jpg", "qrc:/assets/bg.jpg"]
     property int bgIndex: 0
     property bool bgSwap: false
@@ -42,20 +56,20 @@ ApplicationWindow {
         nextImg.source = bgSources[bgIndex]
     }
 
-    // 主界面内容
+    
     Item {
         id: rootContent
         anchors.fill: parent
 
-    // 背景图层（transparentWindow=true 时整体隐藏，窗口全透明）
+    
     Item {
         id: bgLayer
         anchors.fill: parent
         opacity: appController.transparentWindow ? 0.0 : 1.0
         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
-        // 实色底色（防止交叉淡入淡出时透出窗口透明）
-        Rectangle { anchors.fill: parent; color: "#0F1117" }
+        
+        Rectangle { anchors.fill: parent; color: "#0F1117"; radius: 9 }
 
         Image {
             id: bgA
@@ -107,24 +121,25 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        // DPI 适配：根据屏幕可用尺寸调整窗口大小并居中
+        
         var scr = mainWindow.screen
         if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
         if (scr && scr.availableGeometry) {
             var avail = scr.availableGeometry
-            var targetW = 1100
-            var targetH = 720
-            if (avail.width > 0 && avail.height > 0) {
-                if (avail.width < targetW + 40 || avail.height < targetH + 40) {
-                    var scale = Math.min((avail.width - 40) / targetW, (avail.height - 40) / targetH)
-                    targetW = Math.max(800, Math.floor(targetW * scale))
-                    targetH = Math.max(550, Math.floor(targetH * scale))
-                }
-                mainWindow.width = targetW
-                mainWindow.height = targetH
-                mainWindow.x = avail.x + Math.floor((avail.width - targetW) / 2)
-                mainWindow.y = avail.y + Math.floor((avail.height - targetH) / 2)
-            }
+            var s = getScreenScale()
+            
+            var maxW = Math.max(800, avail.width - 40)
+            var maxH = Math.max(550, avail.height - 40)
+            if (1100 * s > maxW) s = maxW / 1100
+            if (720 * s > maxH) s = Math.min(s, maxH / 720)
+            globalScale = Math.max(0.5, s)
+            
+            mainWindow.width = 1100 * globalScale
+            mainWindow.height = 720 * globalScale
+            mainWindow.minimumWidth = 900 * globalScale
+            mainWindow.minimumHeight = 600 * globalScale
+            mainWindow.x = avail.x + Math.floor((avail.width - 1100 * globalScale) / 2)
+            mainWindow.y = avail.y + Math.floor((avail.height - 720 * globalScale) / 2)
         }
 
         if (appController.bgMode === 0) {
@@ -139,29 +154,32 @@ ApplicationWindow {
         }
         appController.setupRoundedCorners(mainWindow)
         appController.toastRequested.connect(function(title, message) {
-            inAppToast.showToast(title, message)
+            toastFloatWindow.showToast(title, message)
+        })
+        appController.forceHideToast.connect(function() {
+            toastFloatWindow.startExit()
         })
     }
 
-    // 暗色遮罩
+    
     Rectangle {
         anchors.fill: parent
         color: "#700a0e27"
     }
 
-    // 主体：导航栏 + 内容区
+    
     Row {
         anchors.fill: parent
         spacing: 0
 
-        // 左侧导航栏
+        
         Rectangle {
             id: navRect
             width: 210
             height: parent.height
             color: "#90121628"
 
-            // 选中背景（流畅移动动画）
+            
             Rectangle {
                 id: navHighlight
                 z: 0
@@ -177,7 +195,7 @@ ApplicationWindow {
                     var tx = navColumn.x + targetItem.x
                     var ty = navColumn.y + targetItem.y
                     if (!animateReady) {
-                        // 第一次直接定位，不播动画
+                        
                         xBehavior.enabled = false; yBehavior.enabled = false
                         wBehavior.enabled = false; hBehavior.enabled = false
                         x = tx; y = ty; width = targetItem.width; height = targetItem.height
@@ -203,7 +221,7 @@ ApplicationWindow {
                 anchors.margins: 12
                 spacing: 6
 
-                // 应用标题
+                
                 Row {
                     Layout.fillWidth: true
                     Layout.topMargin: 4
@@ -217,8 +235,7 @@ ApplicationWindow {
 
                     Image {
                         width: 34; height: 34
-                        source: "qrc:/assets/app_icon_128.png"
-                        sourceSize: Qt.size(64, 64)
+                        source: "qrc:/assets/app_icon_new.png"
                         fillMode: Image.PreserveAspectFit
                         mipmap: true
                         smooth: true
@@ -226,7 +243,7 @@ ApplicationWindow {
                     Text { text: "cs2挤服工具V4_1"; color: App.Theme.textPrimary; font.pixelSize: 15; font.bold: true; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight }
                 }
 
-                // 分隔线
+                
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.topMargin: 8
@@ -238,7 +255,7 @@ ApplicationWindow {
                     Behavior on opacity { NumberAnimation { duration: 300 } }
                 }
 
-                // 导航菜单项
+                
                 Repeater {
                     id: navRepeater
                     model: [
@@ -280,23 +297,23 @@ ApplicationWindow {
                                         var ctx = getContext("2d"); ctx.reset()
                                         var c = mainWindow.currentPage === 0 ? "#FFA78BFA" : "#FF9BA1B5"
                                         ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                        // roof
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(3, 9.5); ctx.lineTo(9, 3.5); ctx.lineTo(15, 9.5)
                                         ctx.stroke()
-                                        // left wall
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(4, 9.5); ctx.lineTo(4, 16)
                                         ctx.stroke()
-                                        // right wall
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(14, 9.5); ctx.lineTo(14, 16)
                                         ctx.stroke()
-                                        // bottom
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(4, 16); ctx.lineTo(14, 16)
                                         ctx.stroke()
-                                        // door
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(7.5, 16); ctx.lineTo(7.5, 12); ctx.lineTo(10.5, 12); ctx.lineTo(10.5, 16)
                                         ctx.stroke()
@@ -313,19 +330,19 @@ ApplicationWindow {
                                         var ctx = getContext("2d"); ctx.reset()
                                         var c = mainWindow.currentPage === 1 ? "#FFA78BFA" : "#FF9BA1B5"
                                         ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                        // top box
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(4, 2); ctx.lineTo(14, 2); ctx.quadraticCurveTo(15.5, 2, 15.5, 3.5); ctx.lineTo(15.5, 6.5)
                                         ctx.quadraticCurveTo(15.5, 8, 14, 8); ctx.lineTo(4, 8); ctx.quadraticCurveTo(2.5, 8, 2.5, 6.5)
                                         ctx.lineTo(2.5, 3.5); ctx.quadraticCurveTo(2.5, 2, 4, 2)
                                         ctx.stroke()
-                                        // bottom box
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(4, 10); ctx.lineTo(14, 10); ctx.quadraticCurveTo(15.5, 10, 15.5, 11.5); ctx.lineTo(15.5, 14.5)
                                         ctx.quadraticCurveTo(15.5, 16, 14, 16); ctx.lineTo(4, 16); ctx.quadraticCurveTo(2.5, 16, 2.5, 14.5)
                                         ctx.lineTo(2.5, 11.5); ctx.quadraticCurveTo(2.5, 10, 4, 10)
                                         ctx.stroke()
-                                        // dots
+                                        
                                         ctx.fillStyle = c
                                         ctx.beginPath(); ctx.arc(5.5, 5, 0.9, 0, Math.PI * 2); ctx.fill()
                                         ctx.beginPath(); ctx.arc(5.5, 13, 0.9, 0, Math.PI * 2); ctx.fill()
@@ -347,7 +364,7 @@ ApplicationWindow {
                                         var ctx = getContext("2d"); ctx.reset()
                                         var c = mainWindow.currentPage === 4 ? "#FFA78BFA" : "#FF9BA1B5"
                                         ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                        // file body with folded corner
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(5, 2.5)
                                         ctx.lineTo(11.5, 2.5)
@@ -359,7 +376,7 @@ ApplicationWindow {
                                         ctx.lineTo(4, 3.5)
                                         ctx.quadraticCurveTo(4, 2.5, 5, 2.5)
                                         ctx.stroke()
-                                        // fold line
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(11.5, 2.5)
                                         ctx.lineTo(11.5, 6.5)
@@ -378,15 +395,15 @@ ApplicationWindow {
                                         var ctx = getContext("2d"); ctx.reset()
                                         var c = mainWindow.currentPage === 2 ? "#FFA78BFA" : "#FF9BA1B5"
                                         ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                        // circle
+                                        
                                         ctx.beginPath()
                                         ctx.arc(9, 9, 6.5, 0, Math.PI * 2)
                                         ctx.stroke()
-                                        // hour hand (12)
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(9, 9); ctx.lineTo(9, 5)
                                         ctx.stroke()
-                                        // minute hand (~4)
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(9, 9); ctx.lineTo(12, 11)
                                         ctx.stroke()
@@ -403,7 +420,7 @@ ApplicationWindow {
                                         var ctx = getContext("2d"); ctx.reset()
                                         var c = mainWindow.currentPage === 3 ? "#FFA78BFA" : "#FF9BA1B5"
                                         ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                        // bell body
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(5.5, 8.5)
                                         ctx.bezierCurveTo(5.5, 5.5, 7.5, 3.5, 9, 3.5)
@@ -414,7 +431,7 @@ ApplicationWindow {
                                         ctx.lineTo(5.5, 11)
                                         ctx.closePath()
                                         ctx.stroke()
-                                        // bell bottom knob
+                                        
                                         ctx.beginPath()
                                         ctx.moveTo(7.8, 15.5)
                                         ctx.quadraticCurveTo(9, 16.8, 10.2, 15.5)
@@ -445,7 +462,7 @@ ApplicationWindow {
 
                 Item { Layout.fillHeight: true }
 
-                // 网页菜单（点击打开浏览器，不切换页面，社区可在设置切换）
+                
                 Rectangle {
                     id: webMenuItem
                     Layout.fillWidth: true
@@ -481,17 +498,17 @@ ApplicationWindow {
                                 var ctx = getContext("2d"); ctx.reset()
                                 var c = "#FF9BA1B5"
                                 ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                // screen
+                                
                                 ctx.beginPath()
                                 ctx.moveTo(4.5, 3); ctx.lineTo(13.5, 3); ctx.quadraticCurveTo(15, 3, 15, 4.5); ctx.lineTo(15, 11.5)
                                 ctx.quadraticCurveTo(15, 13, 13.5, 13); ctx.lineTo(4.5, 13); ctx.quadraticCurveTo(3, 13, 3, 11.5)
                                 ctx.lineTo(3, 4.5); ctx.quadraticCurveTo(3, 3, 4.5, 3)
                                 ctx.stroke()
-                                // stand
+                                
                                 ctx.beginPath()
                                 ctx.moveTo(9, 13); ctx.lineTo(9, 15.5)
                                 ctx.stroke()
-                                // base
+                                
                                 ctx.beginPath()
                                 ctx.moveTo(6, 15.5); ctx.lineTo(12, 15.5)
                                 ctx.stroke()
@@ -508,7 +525,7 @@ ApplicationWindow {
                     }
                 }
 
-                // 设置
+                
                 Rectangle {
                     id: settingsItem
                     Layout.fillWidth: true
@@ -563,7 +580,7 @@ ApplicationWindow {
                     MouseArea { id: setMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: mainWindow.currentPage = 5 }
                 }
 
-                // 关于
+                
                 Rectangle {
                     id: aboutItem
                     Layout.fillWidth: true
@@ -601,11 +618,11 @@ ApplicationWindow {
                                     }
                                     ctx.stroke()
                                 }
-                                // big sparkle
+                                
                                 drawStar(11, 9.5, 5.5, 2)
-                                // small sparkle top-left
+                                
                                 drawStar(4.5, 4.5, 2, 0.8)
-                                // small sparkle bottom-left
+                                
                                 drawStar(5, 14.5, 1.8, 0.7)
                             }
                         }
@@ -634,7 +651,7 @@ ApplicationWindow {
             }
         }
 
-        // 右侧内容区
+        
         Rectangle {
             width: parent.width - 210
             height: parent.height
@@ -646,7 +663,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 property int active: mainWindow.currentPage
 
-                // 页面切换动画公共行为
+                
                 function pageOpacity(idx) { return pageContainer.active === idx ? 1 : 0 }
                 function pageScale(idx) { return pageContainer.active === idx ? 1 : 0.96 }
                 function pageZ(idx) { return pageContainer.active === idx ? 2 : 1 }
@@ -726,34 +743,83 @@ ApplicationWindow {
         }
     }
 
-    // 右上角窗口控制按钮
+    
     Row {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 10
         anchors.rightMargin: 12
         spacing: 8
-        z: 10
+        z: 10000
 
-        // 最小化
+        
         Rectangle {
             width: 34; height: 34; radius: 9
             color: minMouse.containsMouse ? "#c02a2f45" : "#801E1B2E"
             Behavior on color { ColorAnimation { duration: 150 } }
             MouseArea { id: minMouse; anchors.fill: parent; hoverEnabled: true; onClicked: mainWindow.showMinimized() }
-            Rectangle { width: 12; height: 2; radius: 1; color: App.Theme.textPrimary; anchors.centerIn: parent }
+            Canvas {
+                anchors.centerIn: parent; width: 16; height: 16
+                onPaint: {
+                    var ctx = getContext("2d"); ctx.reset()
+                    ctx.strokeStyle = minMouse.containsMouse ? "#ffffff" : App.Theme.textPrimary
+                    ctx.lineWidth = 2; ctx.lineCap = "round"
+                    ctx.beginPath(); ctx.moveTo(3, 8); ctx.lineTo(13, 8); ctx.stroke()
+                }
+            }
         }
 
-        // 最大化/还原
+        
         Rectangle {
             width: 34; height: 34; radius: 9
             color: maxMouse.containsMouse ? "#c02a2f45" : "#801E1B2E"
             Behavior on color { ColorAnimation { duration: 150 } }
             MouseArea { id: maxMouse; anchors.fill: parent; hoverEnabled: true; onClicked: mainWindow.visibility === Window.Maximized ? mainWindow.showNormal() : mainWindow.showMaximized() }
-            Rectangle { width: 12; height: 12; radius: 2; color: "transparent"; border.width: 1.5; border.color: App.Theme.textPrimary; anchors.centerIn: parent }
+            Canvas {
+                id: maxIconCanvas
+                anchors.centerIn: parent; width: 16; height: 16
+                onPaint: {
+                    var ctx = getContext("2d"); ctx.reset()
+                    ctx.strokeStyle = maxMouse.containsMouse ? "#ffffff" : App.Theme.textPrimary
+                    ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.lineCap = "round"
+                    
+                    function roundRect(x, y, w, h, r) {
+                        ctx.beginPath()
+                        ctx.moveTo(x + r, y)
+                        ctx.lineTo(x + w - r, y)
+                        ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+                        ctx.lineTo(x + w, y + h - r)
+                        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+                        ctx.lineTo(x + r, y + h)
+                        ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+                        ctx.lineTo(x, y + r)
+                        ctx.quadraticCurveTo(x, y, x + r, y)
+                        ctx.closePath()
+                    }
+                    if (mainWindow.visibility === Window.Maximized) {
+                        
+                        ctx.beginPath()
+                        ctx.moveTo(3, 6.5)
+                        ctx.lineTo(3, 12.5)
+                        ctx.quadraticCurveTo(3, 13, 3.5, 13)
+                        ctx.lineTo(9.5, 13)
+                        ctx.stroke()
+                        roundRect(5, 3, 8, 8, 1.5)
+                        ctx.stroke()
+                    } else {
+                        
+                        roundRect(3, 3, 10, 10, 1.5)
+                        ctx.stroke()
+                    }
+                }
+            }
+            Connections {
+                target: mainWindow
+                function onVisibilityChanged() { maxIconCanvas.requestPaint() }
+            }
         }
 
-        // 关闭
+        
         Rectangle {
             width: 34; height: 34; radius: 9
             color: closeMouse.containsMouse ? "#e0e85050" : "#801E1B2E"
@@ -772,20 +838,20 @@ ApplicationWindow {
         }
     }
 
-    // 拖拽区域
+    
     MouseArea {
         id: dragArea
         anchors.left: parent.left
         anchors.leftMargin: 210
         anchors.right: parent.right
-        anchors.rightMargin: 140
+        anchors.rightMargin: 220
         anchors.top: parent.top
         anchors.topMargin: 0
         height: 50
         onPressed: mainWindow.startSystemMove()
     }
 
-    // 全局底部挤服状态栏
+    
     Rectangle {
         id: bottomStatusBar
         anchors.left: parent.left
@@ -810,14 +876,14 @@ ApplicationWindow {
             anchors.rightMargin: 16
             spacing: 14
 
-            // 状态指示灯
+            
             Rectangle {
                 width: 8; height: 8; radius: 4
                 color: "#FFD4AA00"
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // 状态文字
+            
             Text {
                 text: "正在挤服"
                 color: "#FFD4AA00"
@@ -826,10 +892,10 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // 分隔
+            
             Rectangle { width: 1; height: 16; color: "#20A78BFA"; Layout.alignment: Qt.AlignVCenter }
 
-            // 服务器名（自适应占满中间空间）
+            
             Text {
                 text: appController.currentServerName || "—"
                 color: "#FFFFFF"
@@ -840,7 +906,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // 地图
+            
             Text {
                 text: appController.currentMap || "—"
                 color: "#A0A8B8"
@@ -850,7 +916,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // 人数进度条
+            
             Rectangle {
                 width: 140; height: 18; radius: 9
                 color: "#300a0e27"
@@ -874,7 +940,7 @@ ApplicationWindow {
                 }
             }
 
-            // 尝试次数
+            
             Text {
                 text: appController.maxRetryCount > 0 ? ("尝试 " + Math.floor(appController.retryCount / 10) * 10 + "/" + appController.maxRetryCount) : ("尝试 " + Math.floor(appController.retryCount / 10) * 10)
                 color: "#8B7DB8"
@@ -882,7 +948,7 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // 取消挤服按钮
+            
             Rectangle {
                 width: 72; height: 28; radius: 6
                 color: cancelBtnMouse.containsMouse ? "#40CC0000" : "#25CC0000"
@@ -908,19 +974,34 @@ ApplicationWindow {
         }
     }
 
-    } // rootContent 结束
-
-    // 窗口紫色描边（最高层级，不被任何弹窗遮罩盖住）
-    Rectangle {
+    
+    Canvas {
         anchors.fill: parent
-        color: "transparent"
-        radius: 20
-        border.width: 2
-        border.color: "#FFA78BFA"
-        z: 2000
+        z: 100000
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var r = 14;
+            var w = width;
+            var h = height;
+            ctx.beginPath();
+            ctx.moveTo(r, 0);
+            ctx.lineTo(w - r, 0);
+            ctx.quadraticCurveTo(w, 0, w, r);
+            ctx.lineTo(w, h - r);
+            ctx.quadraticCurveTo(w, h, w - r, h);
+            ctx.lineTo(r, h);
+            ctx.quadraticCurveTo(0, h, 0, h - r);
+            ctx.lineTo(0, r);
+            ctx.quadraticCurveTo(0, 0, r, 0);
+            ctx.closePath();
+            ctx.strokeStyle = "#A78BFA";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
     }
 
-    // 全局挤服详情面板遮罩
+    
     Rectangle {
         id: joinDetailMask
         anchors.fill: parent
@@ -932,7 +1013,7 @@ ApplicationWindow {
         MouseArea { anchors.fill: parent; onClicked: joinDetailVisible = false }
     }
 
-    // 全局挤服详情面板
+    
     Rectangle {
         id: joinDetailPanel
         width: 520
@@ -941,7 +1022,9 @@ ApplicationWindow {
         color: "#FF1E1B2E"
         border.width: 1
         border.color: "#40A78BFA"
-        anchors.centerIn: parent
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.right
+        anchors.rightMargin: 220
         visible: opacity > 0.01
         opacity: joinDetailVisible ? 1.0 : 0.0
         scale: joinDetailVisible ? 1.0 : 0.85
@@ -963,7 +1046,7 @@ ApplicationWindow {
 
             Rectangle { width: parent.width; height: 1; color: "#15A78BFA" }
 
-            // 地图信息
+            
             Row {
                 spacing: 12
                 Text { text: "当前地图:"; color: "#FF9BA1B5"; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
@@ -995,7 +1078,7 @@ ApplicationWindow {
 
             Item { Layout.fillHeight: true }
 
-            // 按钮行
+            
             Row {
                 Layout.alignment: Qt.AlignHCenter
                 spacing: 16
@@ -1021,7 +1104,7 @@ ApplicationWindow {
         }
     }
 
-    // 挤服成功窗口遮罩
+    
     Rectangle {
         anchors.fill: parent
         z: 998
@@ -1032,7 +1115,7 @@ ApplicationWindow {
         MouseArea { anchors.fill: parent }
     }
 
-    // 全局挤服成功窗口
+    
     Rectangle {
         id: joinSuccessWindow
         width: 480
@@ -1041,7 +1124,9 @@ ApplicationWindow {
         color: "#FF1E1B2E"
         border.width: 1
         border.color: "#40A78BFA"
-        anchors.centerIn: parent
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.right
+        anchors.rightMargin: 220
         visible: opacity > 0.01
         opacity: appController.connected ? 1.0 : 0.0
         scale: appController.connected ? 1.0 : 0.8
@@ -1106,56 +1191,71 @@ ApplicationWindow {
             }
         }
     }
+    }
 
-    // 系统桌面右下角挤服状态悬浮窗（独立置顶窗口）
+    
     Window {
         id: floatStatusWindow
-        width: 260
-        height: 150
+        objectName: "floatStatusWindow"
+        width: 260 * s
+        height: 150 * s
+        property real s: 1.0
         flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        transientParent: null
         color: "transparent"
         visible: false
-        x: {
-            var scr = mainWindow.screen
-            if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
-            if (scr && scr.availableGeometry) return scr.availableGeometry.x + scr.availableGeometry.width - width - 16
-            return Screen.width - width - 16
-        }
-        y: {
-            var scr = mainWindow.screen
-            if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
-            if (scr && scr.availableGeometry) return scr.availableGeometry.y + scr.availableGeometry.height - height - 48
-            return Screen.height - height - 48
-        }
 
         property bool floatStatusShow: true
 
+        function positionAtBottomRight() {
+            var scr = mainWindow.screen || Qt.application.primaryScreen
+            if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
+            if (scr && scr.availableGeometry) {
+                var g = scr.availableGeometry
+                var margin = 16 * s
+                x = g.x + g.width - width - margin
+                y = g.y + g.height - height - margin
+            }
+        }
+
         function showFloat() {
+            s = mainWindow.getScreenScale()
+            if (visible && floatContent.opacity > 0.5) return
+            floatCloseAnim.stop()
+            positionAtBottomRight()
             floatStatusWindow.visible = true
-            floatStatusWindow.requestActivate()
+            appController.positionFloatWindow()
             floatContent.opacity = 0
             floatContent.scale = 0.85
             floatOpenAnim.start()
         }
 
         function hideFloat() {
+            if (!visible) return
+            floatOpenAnim.stop()
             floatCloseAnim.start()
         }
 
-        // 打开动画
+        
         ParallelAnimation {
             id: floatOpenAnim
             NumberAnimation { target: floatContent; property: "opacity"; from: 0; to: 1; duration: 280; easing.type: Easing.OutCubic }
             NumberAnimation { target: floatContent; property: "scale"; from: 0.85; to: 1.0; duration: 320; easing.type: Easing.OutBack }
         }
 
-        // 关闭动画
+        
         ParallelAnimation {
             id: floatCloseAnim
             NumberAnimation { target: floatContent; property: "opacity"; from: 1; to: 0; duration: 200; easing.type: Easing.InCubic }
             NumberAnimation { target: floatContent; property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InCubic }
             onFinished: floatStatusWindow.visible = false
         }
+
+        Item {
+            id: floatScaleWrapper
+            width: 260; height: 150
+            scale: s
+            transformOrigin: Item.TopLeft
 
         Rectangle {
             id: floatContent
@@ -1166,7 +1266,7 @@ ApplicationWindow {
             opacity: 0
             scale: 0.85
 
-            // 顶部标题栏（可拖动）
+            
             Rectangle {
                 id: floatTitle
                 width: parent.width; height: 32
@@ -1174,7 +1274,7 @@ ApplicationWindow {
                 radius: 12
                 clip: true
 
-                // 指示灯 + 标题
+                
                 Row {
                     anchors.left: parent.left
                     anchors.leftMargin: 12
@@ -1184,7 +1284,7 @@ ApplicationWindow {
                     Text { text: "正在挤服"; color: "#FFD4AA00"; font.pixelSize: 12; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
                 }
 
-                // 关闭按钮（右上角，独立层级）
+                
                 Canvas {
                     id: floatCloseBtn
                     anchors.right: parent.right
@@ -1197,10 +1297,10 @@ ApplicationWindow {
                         ctx.lineWidth = 2; ctx.lineCap = "round"
                         ctx.beginPath(); ctx.moveTo(2,2); ctx.lineTo(12,12); ctx.moveTo(12,2); ctx.lineTo(2,12); ctx.stroke()
                     }
-                    MouseArea { id: floatCloseMouse; anchors.fill: parent; hoverEnabled: true; onClicked: floatStatusWindow.floatStatusShow = false }
+                    MouseArea { id: floatCloseMouse; anchors.fill: parent; hoverEnabled: true; onClicked: { appController.stopAutoJoin(); floatStatusWindow.hideFloat(); } }
                 }
 
-                // 拖动区域（排除关闭按钮区域）
+                
                 MouseArea {
                     id: floatDragArea
                     property real pressX: 0
@@ -1220,7 +1320,7 @@ ApplicationWindow {
                 }
             }
 
-            // 内容
+            
             Column {
                 anchors.top: parent.top
                 anchors.topMargin: 40
@@ -1252,7 +1352,7 @@ ApplicationWindow {
                 }
             }
 
-            // 点击内容区域激活主窗口（不覆盖标题栏）
+            
             MouseArea {
                 anchors.top: floatTitle.bottom
                 anchors.left: parent.left
@@ -1260,6 +1360,7 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 onClicked: mainWindow.requestActivate()
             }
+        }
         }
     }
 
@@ -1286,7 +1387,7 @@ ApplicationWindow {
         }
     }
 
-    // 关闭选择对话框
+    
     Connections {
         target: appController
         function onCloseDialogRequested() {
@@ -1307,7 +1408,7 @@ ApplicationWindow {
 
     Rectangle {
         id: closeDlg
-        width: 340; height: 180
+        width: 340; height: 185
         radius: 12
         color: "#f01E1B2E"
         border.width: 1; border.color: "#40A78BFA"
@@ -1317,7 +1418,9 @@ ApplicationWindow {
         scale: 0.9
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-        anchors.centerIn: parent
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenterOffset: 100
 
         function showDlg() { opacity = 1; scale = 1; closeDlgMask.opacity = 1 }
         function hideDlg() { opacity = 0; scale = 0.9; closeDlgMask.opacity = 0 }
@@ -1335,9 +1438,14 @@ ApplicationWindow {
         }
 
         Column {
-            anchors.fill: parent
-            anchors.margins: 20
-            spacing: 16
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.topMargin: 20
+            anchors.leftMargin: 20
+            anchors.rightMargin: 20
+            anchors.bottomMargin: 68
+            spacing: 12
 
             Text {
                 text: "关闭提示"
@@ -1350,102 +1458,236 @@ ApplicationWindow {
                 color: "#B8A9D9"
                 font.pixelSize: 13
             }
+            Text {
+                text: "正在挤服务器确定关闭"
+                color: "#FF6B6B"
+                font.pixelSize: 13
+                font.bold: true
+                visible: appController.autoJoining
+            }
+        }
 
-            Item { width: parent.width; height: 1 }
+        Row {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.leftMargin: 20
+            anchors.rightMargin: 20
+            anchors.bottomMargin: 20
+            spacing: 12
 
-            Row {
-                spacing: 12
-                anchors.right: parent.right
-
-                Rectangle {
-                    width: 120; height: 36; radius: 8
-                    color: trayBtnMouse.containsMouse ? "#20A78BFA" : "#1E1B2E"
-                    border.width: 1; border.color: "#40A78BFA"
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                    Text { anchors.centerIn: parent; text: "最小化托盘"; color: "#A78BFA"; font.pixelSize: 13 }
-                    MouseArea {
-                        id: trayBtnMouse
-                        anchors.fill: parent; hoverEnabled: true
-                        onClicked: { closeDlg.hideDlg(); appController.minimizeToTray() }
-                    }
+            Rectangle {
+                width: (parent.width - 12) / 2; height: 36; radius: 8
+                color: appController.autoJoining ? "#15131F" : (trayBtnMouse.containsMouse ? "#20A78BFA" : "#1E1B2E")
+                border.width: 1; border.color: appController.autoJoining ? "#30383848" : "#40A78BFA"
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Text { anchors.centerIn: parent; text: "最小化托盘"; color: appController.autoJoining ? "#505060" : "#A78BFA"; font.pixelSize: 13 }
+                MouseArea {
+                    id: trayBtnMouse
+                    anchors.fill: parent; hoverEnabled: true
+                    enabled: !appController.autoJoining
+                    onClicked: { closeDlg.hideDlg(); appController.minimizeToTray() }
                 }
+            }
 
-                Rectangle {
-                    width: 120; height: 36; radius: 8
-                    color: quitBtnMouse.containsMouse ? "#e0e85050" : "#1E1B2E"
-                    border.width: 1; border.color: "#40e85050"
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                    Text { anchors.centerIn: parent; text: "直接关闭"; color: quitBtnMouse.containsMouse ? "#FFFFFF" : "#e85050"; font.pixelSize: 13 }
-                    MouseArea {
-                        id: quitBtnMouse
-                        anchors.fill: parent; hoverEnabled: true
-                        onClicked: appController.quitApp()
-                    }
+            Rectangle {
+                width: (parent.width - 12) / 2; height: 36; radius: 8
+                color: quitBtnMouse.containsMouse ? "#e0e85050" : "#1E1B2E"
+                border.width: 1; border.color: "#40e85050"
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Text { anchors.centerIn: parent; text: "直接关闭"; color: quitBtnMouse.containsMouse ? "#FFFFFF" : "#e85050"; font.pixelSize: 13 }
+                MouseArea {
+                    id: quitBtnMouse
+                    anchors.fill: parent; hoverEnabled: true
+                    onClicked: appController.quitApp()
                 }
             }
         }
     }
 
-    // 程序内右下角通知（纯文字无图标，替代 Windows 系统通知）
-    Rectangle {
-        id: inAppToast
-        width: 320; height: 72
-        radius: 12
-        color: "#f01E1B2E"
-        border.width: 1; border.color: "#40A78BFA"
-        z: 3000
-        opacity: 0
-        visible: opacity > 0.01
-        x: mainWindow.width - width - 20
-        y: mainWindow.height - height - 20
-        Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-        Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+    
+    Window {
+        id: toastFloatWindow
+        objectName: "toastFloatWindow"
+        width: 340 * s
+        height: 140 * s
+        property real s: 1.0
+        flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        transientParent: null
+        color: "transparent"
+        visible: false
 
-        Column {
-            anchors.fill: parent
-            anchors.margins: 14
-            spacing: 4
+        property bool toastExiting: false
 
-            Text {
-                id: toastTitle
-                text: ""
-                color: "#FFFFFF"
-                font.pixelSize: 14
-                font.bold: true
+        function positionAtBottomRight() {
+            var scr = Qt.application.primaryScreen || mainWindow.screen
+            if (!scr && Qt.application.screens.length > 0) scr = Qt.application.screens[0]
+            var gx, gy, gw, gh
+            if (scr && scr.availableGeometry) {
+                gx = scr.availableGeometry.x
+                gy = scr.availableGeometry.y
+                gw = scr.availableGeometry.width
+                gh = scr.availableGeometry.height
+            } else {
+                gx = 0; gy = 0; gw = 1920; gh = 1080
             }
-            Text {
-                id: toastMessage
-                text: ""
-                color: "#9BA1B5"
-                font.pixelSize: 12
-                wrapMode: Text.Wrap
-                width: parent.width
-            }
-        }
-
-        Timer {
-            id: toastTimer
-            interval: 3000
-            onTriggered: {
-                inAppToast.opacity = 0
-                inAppToast.y = mainWindow.height - inAppToast.height - 20 + 20
-            }
+            var margin = 16 * s
+            x = gx + gw - width - margin
+            y = gy + gh - height - margin
         }
 
         function showToast(title, message) {
+            s = mainWindow.getScreenScale()
+            positionAtBottomRight()
+            if (visible && !toastExiting) {
+                toastTitle.text = title
+                toastBody.text = message
+                toastBar.width = 316
+                barAnim.restart()
+                return
+            }
+            if (toastExiting) {
+                exitAnim.stop()
+            }
+            toastExiting = false
             toastTitle.text = title
-            toastMessage.text = message
-            inAppToast.opacity = 1
-            inAppToast.y = mainWindow.height - inAppToast.height - 20
-            toastTimer.restart()
+            toastBody.text = message
+            toastBar.width = 316
+            toastBox.opacity = 0
+            toastBox.scale = 0.9
+            toastBox.x = 340
+            visible = true
+            show()
+            raise()
+            enterAnim.start()
+            barAnim.start()
         }
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                inAppToast.opacity = 0
-                toastTimer.stop()
+        function startExit() {
+            if (toastExiting) return
+            toastExiting = true
+            enterAnim.stop()
+            barAnim.stop()
+            toastBox.x = 1
+            exitAnim.start()
+        }
+
+        ParallelAnimation {
+            id: enterAnim
+            NumberAnimation { target: toastBox; property: "x"; from: 340; to: 1; duration: 380; easing.type: Easing.OutCubic }
+            NumberAnimation { target: toastBox; property: "opacity"; from: 0; to: 1; duration: 300; easing.type: Easing.OutCubic }
+            NumberAnimation { target: toastBox; property: "scale"; from: 0.9; to: 1.0; duration: 300; easing.type: Easing.OutCubic }
+        }
+
+        ParallelAnimation {
+            id: exitAnim
+            NumberAnimation { target: toastBox; property: "opacity"; from: 1; to: 0; duration: 250; easing.type: Easing.InCubic }
+            NumberAnimation { target: toastBox; property: "scale"; from: 1.0; to: 0.95; duration: 250; easing.type: Easing.InCubic }
+            onFinished: {
+                toastFloatWindow.visible = false
+                toastFloatWindow.toastExiting = false
             }
+        }
+
+        NumberAnimation {
+            id: barAnim
+            target: toastBar
+            property: "width"
+            from: 316
+            to: 0
+            duration: 5000
+            easing.type: Easing.Linear
+        }
+
+        Item {
+            id: toastScaleWrapper
+            width: 340; height: 140
+            scale: s
+            transformOrigin: Item.TopLeft
+            clip: true
+
+        Rectangle {
+            id: toastBox
+            width: 338; height: 138
+            x: 1; y: 1
+            radius: 14
+            color: "#f01E1B2E"
+            border.width: 1
+            border.color: "#50A78BFA"
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 18
+                anchors.bottomMargin: 30
+                spacing: 8
+
+                Text {
+                    id: toastTitle
+                    text: ""
+                    color: "#FFFFFF"
+                    font.pixelSize: 14
+                    font.bold: true
+                    elide: Text.ElideRight
+                    width: parent.width - 42
+                }
+                Text {
+                    id: toastBody
+                    text: ""
+                    color: "#9BA1B5"
+                    font.pixelSize: 12
+                    wrapMode: Text.Wrap
+                    width: parent.width
+                }
+            }
+
+            Rectangle {
+                id: toastBar
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+                anchors.leftMargin: 12
+                anchors.bottomMargin: 6
+                width: 316
+                height: 3
+                radius: 2
+                color: "#A78BFA"
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    appController.dismissToast()
+                    toastFloatWindow.startExit()
+                }
+            }
+
+            Rectangle {
+                id: toastCloseBtn
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: 6
+                anchors.rightMargin: 6
+                width: 34
+                height: 34
+                radius: 9
+                color: toastCloseMouse.containsMouse ? "#30FFFFFF" : "transparent"
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Text {
+                    anchors.centerIn: parent
+                    text: "×"
+                    color: toastCloseMouse.containsMouse ? "#FFFFFF" : "#8090A0"
+                    font.pixelSize: 24
+                }
+                MouseArea {
+                    id: toastCloseMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        appController.dismissToast()
+                        toastFloatWindow.startExit()
+                    }
+                }
+            }
+        }
         }
     }
 }
