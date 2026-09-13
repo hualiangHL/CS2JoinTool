@@ -34,7 +34,7 @@ public:
     QStringList allMapNames() const { return m_allMapNames; }
     void addServerMap(const QString &mapName);
 
-    // 服务器查询完成后调用，检测是否匹配订阅
+    
     void checkServerMap(const QString &ip, int port, const QString &serverName,
                         const QString &community, const QString &mapName,
                         int currentPlayers, int maxPlayers);
