@@ -15,9 +15,16 @@ ApplicationWindow {
     property real globalScale: 1.0
     color: "transparent"
     flags: Qt.Window | Qt.FramelessWindowHint
-    title: "cs2挤服工具V4_1"
+    title: "CS2挤服工具v4_2"
     property bool joinDetailVisible: false
     property int currentPage: 0
+    property bool allowClose: false
+    onClosing: {
+        if (!allowClose) {
+            close.accepted = false
+            appController.tryClose()
+        }
+    }
 
     function getScreenScale() {
         var scr = mainWindow.screen || Qt.application.primaryScreen
@@ -175,7 +182,7 @@ ApplicationWindow {
         
         Rectangle {
             id: navRect
-            width: 210
+            width: 170
             height: parent.height
             color: "#90121628"
 
@@ -187,7 +194,7 @@ ApplicationWindow {
                 color: App.Theme.primaryLight
                 visible: false
                 property bool animateReady: false
-                property Item targetItem: mainWindow.currentPage < 5 ? navRepeater.itemAt(mainWindow.currentPage) : (mainWindow.currentPage === 5 ? settingsItem : aboutItem)
+                property Item targetItem: mainWindow.currentPage < 6 ? navRepeater.itemAt(mainWindow.currentPage) : (mainWindow.currentPage === 6 ? settingsItem : aboutItem)
 
                 onTargetItemChanged: {
                     if (!targetItem) return
@@ -222,25 +229,100 @@ ApplicationWindow {
                 spacing: 6
 
                 
-                Row {
+                Rectangle {
                     Layout.fillWidth: true
                     Layout.topMargin: 4
-                    spacing: 10
-                    opacity: 0
-                    property real slideX: -20
-                    transform: Translate { x: slideX }
-                    Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Behavior on slideX { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Timer { running: true; interval: 0; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
+                    Layout.preferredHeight: 40
+                    implicitHeight: 40
+                    height: 40
+                    color: "transparent"
+
+                    property string fullTitleText: "CS2挤服工具v4_2"
+                    property int titleCharIndex: 0
+
+                    function replayTitleAnimation() {
+                        typewriterTimer.stop()
+                        eraseDelayTimer.stop()
+                        eraserTimer.stop()
+                        iconShowTimer.stop()
+                        titleCharIndex = 0
+                        finalTitleIcon.opacity = 0
+                        typewriterTimer.start()
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: parent.replayTitleAnimation()
+                    }
+
+                    Text {
+                        id: animTitleText
+                        anchors.centerIn: parent
+                        text: parent.fullTitleText.substring(0, parent.titleCharIndex)
+                        color: App.Theme.textPrimary
+                        font.pixelSize: 15; font.bold: true
+                    }
 
                     Image {
-                        width: 34; height: 34
+                        id: finalTitleIcon
+                        anchors.centerIn: parent
+                        width: 36; height: 36
                         source: "qrc:/assets/app_icon_new.png"
                         fillMode: Image.PreserveAspectFit
-                        mipmap: true
-                        smooth: true
+                        mipmap: true; smooth: true
+                        opacity: 0
+                        Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.OutCubic } }
                     }
-                    Text { text: "cs2挤服工具V4_1"; color: App.Theme.textPrimary; font.pixelSize: 15; font.bold: true; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight }
+
+                    
+                    Timer {
+                        id: typewriterTimer
+                        interval: 110
+                        repeat: true
+                        onTriggered: {
+                            parent.titleCharIndex++
+                            if (parent.titleCharIndex >= parent.fullTitleText.length) {
+                                stop()
+                                eraseDelayTimer.start()
+                            }
+                        }
+                    }
+
+                    
+                    Timer {
+                        id: eraseDelayTimer
+                        interval: 2200
+                        repeat: false
+                        onTriggered: eraserTimer.start()
+                    }
+
+                    
+                    Timer {
+                        id: eraserTimer
+                        interval: 90
+                        repeat: true
+                        onTriggered: {
+                            parent.titleCharIndex--
+                            if (parent.titleCharIndex <= 0) {
+                                stop()
+                                iconShowTimer.start()
+                            }
+                        }
+                    }
+
+                    
+                    Timer {
+                        id: iconShowTimer
+                        interval: 200
+                        repeat: false
+                        onTriggered: finalTitleIcon.opacity = 1
+                    }
+
+                    
+                    Timer {
+                        running: true; interval: 400; repeat: false
+                        onTriggered: typewriterTimer.start()
+                    }
                 }
 
                 
@@ -251,8 +333,8 @@ ApplicationWindow {
                     height: 1
                     color: App.Theme.border
                     opacity: 0
-                    Timer { running: true; interval: 75; repeat: false; onTriggered: parent.opacity = 1 }
-                    Behavior on opacity { NumberAnimation { duration: 300 } }
+                    Timer { running: true; interval: 200; repeat: false; onTriggered: parent.opacity = 1 }
+                    Behavior on opacity { NumberAnimation { duration: 400 } }
                 }
 
                 
@@ -263,7 +345,8 @@ ApplicationWindow {
                         { name: "服务器列表", icon: "≡" },
                         { name: "ExG冷却时间", icon: "⏱" },
                         { name: "地图订阅", icon: "★" },
-                        { name: "创意工坊", icon: "🗺" }
+                        { name: "创意工坊", icon: "🗺" },
+                        { name: "社区指令", icon: "⌨" }
                     ]
 
                     Rectangle {
@@ -275,9 +358,9 @@ ApplicationWindow {
                         opacity: 0
                         property real slideX: -20
                         transform: Translate { x: slideX }
-                        Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                        Behavior on slideX { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                        Timer { running: true; interval: 150 + index * 75; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
+                        Behavior on opacity { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                        Behavior on slideX { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                        Timer { running: true; interval: 250 + index * 120; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
 
                         Row {
                             anchors.verticalCenter: parent.verticalCenter
@@ -350,7 +433,7 @@ ApplicationWindow {
                                 }
                                 Text {
                                     anchors.centerIn: parent
-                                    visible: index !== 0 && index !== 1 && index !== 2 && index !== 3 && index !== 4
+                                    visible: index !== 0 && index !== 1 && index !== 2 && index !== 3 && index !== 4 && index !== 5
                                     text: modelData.icon; font.pixelSize: 16; color: mainWindow.currentPage === index ? App.Theme.primary : App.Theme.textSecondary
                                 }
                                 Canvas {
@@ -438,6 +521,42 @@ ApplicationWindow {
                                         ctx.stroke()
                                     }
                                 }
+                                Canvas {
+                                    id: terminalCanvas
+                                    width: 18; height: 18
+                                    visible: index === 5
+                                    property bool selected: mainWindow.currentPage === 5
+                                    onSelectedChanged: requestPaint()
+                                    Component.onCompleted: requestPaint()
+                                    onPaint: {
+                                        var ctx = getContext("2d"); ctx.reset()
+                                        var c = mainWindow.currentPage === 5 ? "#FFA78BFA" : "#FF9BA1B5"
+                                        ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                        
+                                        ctx.beginPath()
+                                        ctx.moveTo(5, 3)
+                                        ctx.lineTo(13, 3)
+                                        ctx.quadraticCurveTo(15, 3, 15, 5)
+                                        ctx.lineTo(15, 13)
+                                        ctx.quadraticCurveTo(15, 15, 13, 15)
+                                        ctx.lineTo(5, 15)
+                                        ctx.quadraticCurveTo(3, 15, 3, 13)
+                                        ctx.lineTo(3, 5)
+                                        ctx.quadraticCurveTo(3, 3, 5, 3)
+                                        ctx.stroke()
+                                        
+                                        ctx.beginPath()
+                                        ctx.moveTo(6, 6.5)
+                                        ctx.lineTo(8.5, 9)
+                                        ctx.lineTo(6, 11.5)
+                                        ctx.stroke()
+                                        
+                                        ctx.beginPath()
+                                        ctx.moveTo(10, 9)
+                                        ctx.lineTo(13, 9)
+                                        ctx.stroke()
+                                    }
+                                }
                             }
                             Text { text: modelData.name; font.pixelSize: 14; color: mainWindow.currentPage === index ? App.Theme.primary : App.Theme.textPrimary }
                         }
@@ -473,9 +592,9 @@ ApplicationWindow {
                     opacity: 0
                     property real slideX: -20
                     transform: Translate { x: slideX }
-                    Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Behavior on slideX { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Timer { running: true; interval: 525; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
+                    Behavior on opacity { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Behavior on slideX { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Timer { running: true; interval: 850; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
                     property string webMenuName: {
                         if (appController.webMenuCommunity === 1) return "UB网页菜单"
                         if (appController.webMenuCommunity === 2) return "X社网页菜单"
@@ -536,9 +655,9 @@ ApplicationWindow {
                     opacity: 0
                     property real slideX: -20
                     transform: Translate { x: slideX }
-                    Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Behavior on slideX { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Timer { running: true; interval: 600; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
+                    Behavior on opacity { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Behavior on slideX { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Timer { running: true; interval: 950; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 12
@@ -546,7 +665,7 @@ ApplicationWindow {
                         anchors.leftMargin: 18
                         Canvas {
                             width: 18; height: 18
-                            property bool selected: mainWindow.currentPage === 5
+                            property bool selected: mainWindow.currentPage === 6
                             onSelectedChanged: requestPaint()
                             Component.onCompleted: requestPaint()
                             onPaint: {
@@ -568,16 +687,16 @@ ApplicationWindow {
                                 ctx.stroke()
                             }
                         }
-                        Text { text: "设置"; font.pixelSize: 14; color: mainWindow.currentPage === 5 ? App.Theme.primary : App.Theme.textPrimary }
+                        Text { text: "设置"; font.pixelSize: 14; color: mainWindow.currentPage === 6 ? App.Theme.primary : App.Theme.textPrimary }
                     }
                     Rectangle {
                         width: 3; height: 20; radius: 1.5
                         color: App.Theme.primary
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: mainWindow.currentPage === 5
+                        visible: mainWindow.currentPage === 6
                     }
-                    MouseArea { id: setMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: mainWindow.currentPage = 5 }
+                    MouseArea { id: setMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: mainWindow.currentPage = 6 }
                 }
 
                 
@@ -591,9 +710,9 @@ ApplicationWindow {
                     opacity: 0
                     property real slideX: -20
                     transform: Translate { x: slideX }
-                    Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Behavior on slideX { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-                    Timer { running: true; interval: 675; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
+                    Behavior on opacity { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Behavior on slideX { NumberAnimation { duration: 650; easing.type: Easing.OutCubic } }
+                    Timer { running: true; interval: 1050; repeat: false; onTriggered: { parent.opacity = 1; parent.slideX = 0 } }
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 12
@@ -601,7 +720,7 @@ ApplicationWindow {
                         anchors.leftMargin: 18
                         Canvas {
                             width: 18; height: 18
-                            property bool selected: mainWindow.currentPage === 6
+                            property bool selected: mainWindow.currentPage === 7
                             onSelectedChanged: requestPaint()
                             Component.onCompleted: requestPaint()
                             onPaint: {
@@ -626,16 +745,16 @@ ApplicationWindow {
                                 drawStar(5, 14.5, 1.8, 0.7)
                             }
                         }
-                        Text { text: "关于"; font.pixelSize: 14; color: mainWindow.currentPage === 6 ? App.Theme.primary : App.Theme.textPrimary }
+                        Text { text: "关于"; font.pixelSize: 14; color: mainWindow.currentPage === 7 ? App.Theme.primary : App.Theme.textPrimary }
                     }
                     Rectangle {
                         width: 3; height: 20; radius: 1.5
                         color: App.Theme.primary
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: mainWindow.currentPage === 6
+                        visible: mainWindow.currentPage === 7
                     }
-                    MouseArea { id: aboutMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: mainWindow.currentPage = 6 }
+                    MouseArea { id: aboutMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: mainWindow.currentPage = 7 }
                 }
 
                 Text {
@@ -653,7 +772,7 @@ ApplicationWindow {
 
         
         Rectangle {
-            width: parent.width - 210
+            width: parent.width - 170
             height: parent.height
             color: "transparent"
             clip: true
@@ -719,8 +838,8 @@ ApplicationWindow {
                     Behavior on opacity { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                     Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                 }
-                App.SettingsPage {
-                    id: settingsRef
+                App.CommunityCommandsPage {
+                    id: commandsRef
                     pageActive: pageContainer.active === 5
                     anchors.fill: parent
                     opacity: pageContainer.active === 5 ? 1 : 0
@@ -729,13 +848,23 @@ ApplicationWindow {
                     Behavior on opacity { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                     Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                 }
-                App.AboutPage {
-                    id: aboutRef
+                App.SettingsPage {
+                    id: settingsRef
                     pageActive: pageContainer.active === 6
                     anchors.fill: parent
                     opacity: pageContainer.active === 6 ? 1 : 0
                     scale: pageContainer.active === 6 ? 1 : 0.96
                     z: pageContainer.active === 6 ? 2 : 1
+                    Behavior on opacity { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
+                }
+                App.AboutPage {
+                    id: aboutRef
+                    pageActive: pageContainer.active === 7
+                    anchors.fill: parent
+                    opacity: pageContainer.active === 7 ? 1 : 0
+                    scale: pageContainer.active === 7 ? 1 : 0.96
+                    z: pageContainer.active === 7 ? 2 : 1
                     Behavior on opacity { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                     Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
                 }
@@ -842,7 +971,7 @@ ApplicationWindow {
     MouseArea {
         id: dragArea
         anchors.left: parent.left
-        anchors.leftMargin: 210
+        anchors.leftMargin: 170
         anchors.right: parent.right
         anchors.rightMargin: 220
         anchors.top: parent.top
@@ -1499,7 +1628,7 @@ ApplicationWindow {
                 MouseArea {
                     id: quitBtnMouse
                     anchors.fill: parent; hoverEnabled: true
-                    onClicked: appController.quitApp()
+                    onClicked: { mainWindow.allowClose = true; appController.quitApp() }
                 }
             }
         }
