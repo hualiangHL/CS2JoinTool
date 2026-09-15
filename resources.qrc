@@ -13,11 +13,13 @@
         <file>qml/components/StatusBadge.qml</file>
         <file>qml/components/EDrawer.qml</file>
         <file>qml/components/ETooltip.qml</file>
+        <file>qml/components/CommunityCommands.qml</file>
         <file>qml/pages/HomePage.qml</file>
         <file>qml/pages/ServerListPage.qml</file>
         <file>qml/pages/CooldownPage.qml</file>
         <file>qml/pages/SubscriptionPage.qml</file>
         <file>qml/pages/WorkshopPage.qml</file>
+        <file>qml/pages/CommunityCommandsPage.qml</file>
         <file>qml/pages/SettingsPage.qml</file>
         <file>qml/pages/AboutPage.qml</file>
         <file>assets/icon.png</file>

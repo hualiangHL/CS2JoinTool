@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(CS2JoinTool VERSION 4.0.0 LANGUAGES CXX)
+project(CS2JoinTool VERSION 4.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -45,8 +45,18 @@ set(PROJECT_SOURCES
     src/roundedcornerrenderer.h
     src/roundedcornerrenderer.cpp
     resources.qrc
-    app.rc
 )
+
+if(MINGW)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/app_rc.o
+        COMMAND windres --include-dir=${CMAKE_CURRENT_SOURCE_DIR} -i ${CMAKE_CURRENT_SOURCE_DIR}/app.rc -o ${CMAKE_CURRENT_BINARY_DIR}/app_rc.o -O coff
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app.rc ${CMAKE_CURRENT_SOURCE_DIR}/assets/app_icon.ico
+        COMMENT "Compiling Windows resource file app.rc"
+        VERBATIM
+    )
+    list(APPEND PROJECT_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/app_rc.o)
+endif()
 
 qt_add_executable(CS2JoinTool
     ${PROJECT_SOURCES}

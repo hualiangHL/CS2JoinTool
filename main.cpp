@@ -122,6 +122,8 @@ int main(int argc, char *argv[])
 
     QQuickStyle::setStyle("Basic");
 
+    app.setWindowIcon(QIcon(":/assets/app_icon_new.png"));
+
     qmlRegisterType<ServerQuery>("CS2JoinTool", 1, 0, "ServerQuery");
     qmlRegisterType<ServerListModel>("CS2JoinTool", 1, 0, "ServerListModel");
 
@@ -170,13 +172,11 @@ int main(int argc, char *argv[])
     engine.load(url);
 
     
-    app.setWindowIcon(QIcon(":/assets/app_icon.png"));
-
-    
     QTimer::singleShot(0, [&engine]() {
         QObject *root = engine.rootObjects().value(0);
         QQuickWindow *window = qobject_cast<QQuickWindow *>(root);
         if (window) {
+            window->setIcon(QIcon(":/assets/app_icon_new.png"));
             QScreen *screen = window->screen();
             if (!screen) screen = QGuiApplication::primaryScreen();
             QRect available = screen->availableGeometry();
