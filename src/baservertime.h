@@ -15,6 +15,7 @@ public:
     Q_INVOKABLE void connectWS();
     Q_INVOKABLE void disconnectWS();
     qint64 getMapTime(const QString &ip, int port) const;
+    qint64 getMapTimeByName(const QString &name) const;
     bool isConnected() const { return m_connected; }
 
 signals:
@@ -37,6 +38,8 @@ private:
     QTimer *m_reconnectTimer;
     int m_reconnectAttempt;
     QHash<QString, qint64> m_mapTimes; 
+    QHash<QString, qint64> m_nameMapTimes; 
+    QHash<QString, QString> m_ipAliases; 
 
     void sendHandshake();
     void parseFrames();

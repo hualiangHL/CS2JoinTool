@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QClipboard>
 #include <QWindow>
 #include <QStandardPaths>
 #include <QDir>
@@ -88,7 +89,7 @@ static void ensureTrayIconRegistered()
     nid.uFlags = NIF_ICON | NIF_MESSAGE;
     nid.uCallbackMessage = WM_USER + 1;
     nid.hIcon = LoadAppIcon();
-    wcsncpy(nid.szTip, L"cs2挤服工具V4_1", 127);
+    wcsncpy(nid.szTip, L"CS2挤服工具v4_2", 127);
     nid.szTip[127] = L'\0';
 
     Shell_NotifyIconW(NIM_ADD, &nid);
@@ -214,6 +215,9 @@ AppController::AppController(QObject *parent)
     , m_transparentWindow(false)
     , m_proMode(false)
     , m_defaultJoinInterval(100.0)
+    , m_cpuCoreCount(qMax(1, QThread::idealThreadCount()))
+    , m_joinCoreCount(2)
+    , m_activeJoinCoreCount(2)
     , m_floatWindowEnabled(true)
     , m_closeBehavior(0)
     , m_startMinimizedToTray(false)
@@ -285,7 +289,7 @@ AppController::AppController(QObject *parent)
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         m_tray = new QSystemTrayIcon(this);
         m_tray->setIcon(QIcon(":/assets/app_icon.png"));
-        m_tray->setToolTip("cs2挤服工具V4_1");
+        m_tray->setToolTip("CS2挤服工具v4_2");
 
         QMenu *menu = new QMenu();
         QAction *showAct = menu->addAction("显示主窗口");
@@ -411,6 +415,29 @@ void AppController::setDefaultJoinInterval(double v)
     }
 }
 
+void AppController::setJoinCoreCount(int c)
+{
+    int maxCores = qMax(1, m_cpuCoreCount);
+    if (c < 1) c = 1;
+    if (c > maxCores) c = maxCores;
+    if (m_joinCoreCount != c) {
+        m_joinCoreCount = c;
+        emit joinCoreCountChanged(c);
+        saveSettings();
+    }
+}
+
+void AppController::setActiveJoinCoreCount(int c)
+{
+    int maxCores = qMax(1, m_cpuCoreCount);
+    if (c < 1) c = 1;
+    if (c > maxCores) c = maxCores;
+    if (m_activeJoinCoreCount != c) {
+        m_activeJoinCoreCount = c;
+        emit activeJoinCoreCountChanged(c);
+    }
+}
+
 void AppController::setFloatWindowEnabled(bool e)
 {
     if (m_floatWindowEnabled != e) {
@@ -493,6 +520,17 @@ void AppController::queryServer()
     }
     if (!m_autoJoining) {
         setStatus("查询中...");
+        
+        m_serverStatus = 0;
+        m_currentPlayers = 0;
+        m_maxPlayers = 0;
+        m_currentMap = "";
+        m_currentServerName = "";
+        emit serverStatusChanged(0);
+        emit currentPlayersChanged(0);
+        emit maxPlayersChanged(0);
+        emit currentMapChanged("");
+        emit currentServerNameChanged("");
     }
     m_query->queryServer(m_serverIp, m_serverPort);
 }
@@ -605,7 +643,10 @@ void AppController::onAutoJoinTick()
 {
     
     if (m_autoJoining) {
-        m_query->queryServerWithoutReset();
+        int cores = qMax(1, m_activeJoinCoreCount);
+        for (int i = 0; i < cores; i++) {
+            m_query->queryServerWithoutReset();
+        }
     }
 }
 
@@ -671,14 +712,18 @@ void AppController::saveSettings()
     m_settings->setValue("transparentWindow", m_transparentWindow);
     m_settings->setValue("proMode", m_proMode);
     m_settings->setValue("defaultJoinInterval", m_defaultJoinInterval);
+    m_settings->setValue("joinCoreCount", m_joinCoreCount);
     m_settings->setValue("floatWindowEnabled", m_floatWindowEnabled);
     m_settings->setValue("closeBehavior", m_closeBehavior);
     m_settings->setValue("startMinimizedToTray", m_startMinimizedToTray);
     m_settings->setValue("difficultyTierMode", m_difficultyTierMode);
     m_settings->setValue("joinNotificationEnabled", m_joinNotificationEnabled);
+    m_settings->setValue("minimizeNotificationEnabled", m_minimizeNotificationEnabled);
     m_settings->setValue("debugPlayerList", m_debugPlayerList);
     m_settings->setValue("webMenuCommunity", m_webMenuCommunity);
     m_settings->setValue("maxRetryCount", m_maxRetryCount);
+    m_settings->setValue("cardViewMode", m_cardViewMode);
+    m_settings->setValue("serverListFilterOptions", m_serverListFilterOptions);
     m_settings->sync();
 }
 
@@ -698,14 +743,20 @@ void AppController::loadSettings()
     m_transparentWindow = m_settings->value("transparentWindow", false).toBool();
     m_proMode = m_settings->value("proMode", false).toBool();
     m_defaultJoinInterval = m_settings->value("defaultJoinInterval", 100.0).toDouble();
+    m_joinCoreCount = m_settings->value("joinCoreCount", 2).toInt();
+    if (m_joinCoreCount < 1) m_joinCoreCount = 1;
+    if (m_joinCoreCount > m_cpuCoreCount) m_joinCoreCount = m_cpuCoreCount;
     m_floatWindowEnabled = m_settings->value("floatWindowEnabled", true).toBool();
     m_closeBehavior = m_settings->value("closeBehavior", 0).toInt();
     m_startMinimizedToTray = m_settings->value("startMinimizedToTray", false).toBool();
     m_difficultyTierMode = m_settings->value("difficultyTierMode", false).toBool();
     m_joinNotificationEnabled = m_settings->value("joinNotificationEnabled", false).toBool();
+    m_minimizeNotificationEnabled = m_settings->value("minimizeNotificationEnabled", true).toBool();
     m_debugPlayerList = m_settings->value("debugPlayerList", false).toBool();
     m_webMenuCommunity = m_settings->value("webMenuCommunity", 0).toInt();
     m_maxRetryCount = m_settings->value("maxRetryCount", 999999).toInt();
+    m_cardViewMode = m_settings->value("cardViewMode", false).toBool();
+    m_serverListFilterOptions = m_settings->value("serverListFilterOptions", QStringList()).toStringList();
 
     emit serverIpChanged(m_serverIp);
     emit serverPortChanged(m_serverPort);
@@ -807,6 +858,11 @@ void AppController::openUrlDefaultBrowser(const QString &url)
 #endif
 }
 
+void AppController::copyToClipboard(const QString &text)
+{
+    QGuiApplication::clipboard()->setText(text);
+}
+
 void AppController::tryClose()
 {
     
@@ -859,6 +915,15 @@ void AppController::setJoinNotificationEnabled(bool v)
     }
 }
 
+void AppController::setMinimizeNotificationEnabled(bool v)
+{
+    if (m_minimizeNotificationEnabled != v) {
+        m_minimizeNotificationEnabled = v;
+        emit minimizeNotificationEnabledChanged(v);
+        saveSettings();
+    }
+}
+
 void AppController::setDebugPlayerList(bool v)
 {
     if (m_debugPlayerList != v) {
@@ -873,6 +938,24 @@ void AppController::setWebMenuCommunity(int v)
     if (m_webMenuCommunity != v) {
         m_webMenuCommunity = v;
         emit webMenuCommunityChanged(v);
+        saveSettings();
+    }
+}
+
+void AppController::setCardViewMode(bool v)
+{
+    if (m_cardViewMode != v) {
+        m_cardViewMode = v;
+        emit cardViewModeChanged(v);
+        saveSettings();
+    }
+}
+
+void AppController::setServerListFilterOptions(const QStringList &v)
+{
+    if (m_serverListFilterOptions != v) {
+        m_serverListFilterOptions = v;
+        emit serverListFilterOptionsChanged(v);
         saveSettings();
     }
 }
@@ -897,9 +980,11 @@ void AppController::minimizeToTray()
     }
     if (m_tray) {
         m_tray->show();
-        QTimer::singleShot(100, [this]() {
-            showToastNotification("cs2挤服工具V4_1", "已最小化到托盘，双击托盘图标恢复");
-        });
+        if (m_minimizeNotificationEnabled) {
+            QTimer::singleShot(100, [this]() {
+                showToastNotification("CS2挤服工具v4_2", "已最小化到托盘，双击托盘图标恢复");
+            });
+        }
     }
 }
 

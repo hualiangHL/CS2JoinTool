@@ -28,6 +28,7 @@ struct ExgServerInfo {
     QString mapDifficulty;
     int status; 
     qint64 mapChangedAt; 
+    bool hasBaTime; 
 };
 
 class ServerListModel : public QAbstractListModel
@@ -51,7 +52,8 @@ public:
         StatusRole,
         PlayersPercentRole,
         GameNameRole,
-        MapChangedAtRole
+        MapChangedAtRole,
+        HasBaTimeRole
     };
 
     explicit ServerListModel(QObject *parent = nullptr);
@@ -77,9 +79,11 @@ class ServerManager : public QObject
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
     Q_PROPERTY(bool hideOffline READ hideOffline WRITE setHideOffline NOTIFY hideOfflineChanged)
     Q_PROPERTY(int sortMode READ sortMode WRITE setSortMode NOTIFY sortModeChanged)
+    Q_PROPERTY(QStringList filterOptions READ filterOptions WRITE setFilterOptions NOTIFY filterOptionsChanged)
     Q_PROPERTY(int modelVersion READ modelVersion NOTIFY modelVersionChanged)
     Q_PROPERTY(int refreshCountdown READ refreshCountdown NOTIFY refreshCountdownChanged)
     Q_PROPERTY(QStringList communityOrder READ communityOrder NOTIFY communityOrderChanged)
+    Q_PROPERTY(QVariantList communityGroups READ communityGroups NOTIFY modelVersionChanged)
 
 public:
     explicit ServerManager(QObject *parent = nullptr);
@@ -92,6 +96,8 @@ public:
     void setHideOffline(bool hide);
     int sortMode() const { return m_sortMode; }
     void setSortMode(int mode);
+    QStringList filterOptions() const { return m_filterOptions; }
+    void setFilterOptions(const QStringList &opts);
     int modelVersion() const { return m_modelVersion; }
     int refreshCountdown() const { return m_refreshCountdown; }
 
@@ -104,6 +110,9 @@ public:
     Q_INVOKABLE void moveCommunityUp(const QString &community);
     Q_INVOKABLE void moveCommunityDown(const QString &community);
     Q_INVOKABLE void resetCommunityOrder();
+    Q_INVOKABLE int getSubGroupCount(int index);
+    Q_INVOKABLE int findServerIndex(const QString &serverId);
+    QVariantList communityGroups() const;
     QStringList communityOrder() const { return m_communityOrder; }
 
 signals:
@@ -111,6 +120,7 @@ signals:
     void searchTextChanged(const QString &text);
     void hideOfflineChanged(bool hide);
     void sortModeChanged(int mode);
+    void filterOptionsChanged(const QStringList &opts);
     void modelVersionChanged(int version);
     void refreshCountdownChanged(int countdown);
     void communityOrderChanged();
@@ -135,6 +145,7 @@ private:
     QString m_searchText;
     bool m_hideOffline = true;
     int m_sortMode; 
+    QStringList m_filterOptions;
     int m_pendingQueries;
     int m_modelVersion;
     BaServerTime *m_baTime;

@@ -21,6 +21,26 @@ BaServerTime::BaServerTime(QObject *parent)
     m_reconnectTimer->setSingleShot(true);
     m_reconnectTimer->setInterval(8000);
     connect(m_reconnectTimer, &QTimer::timeout, this, &BaServerTime::reconnect);
+
+    
+    m_ipAliases["cs1.zombieden.cn:27016"] = "110.42.9.22:27016";
+    m_ipAliases["cs1.zombieden.cn:27015"] = "110.42.9.22:27015";
+    m_ipAliases["cs3.zombieden.cn:27015"] = "110.42.9.181:27015";
+    m_ipAliases["cs3.zombieden.cn:27016"] = "110.42.9.181:27016";
+    m_ipAliases["cs5.zombieden.cn:27015"] = "110.42.9.149:27015";
+    m_ipAliases["cs5.zombieden.cn:27016"] = "110.42.9.149:27016";
+    m_ipAliases["cs2.zombieden.cn:27050"] = "110.42.9.152:27050";
+    m_ipAliases["cs2.zombieden.cn:27051"] = "110.42.9.152:27051";
+    m_ipAliases["cs1.zombieden.cn:27019"] = "110.42.9.22:27019";
+    m_ipAliases["cs1.zombieden.cn:27020"] = "110.42.9.22:27020";
+    m_ipAliases["cs2.zombieden.cn:27090"] = "110.42.9.152:27090";
+    m_ipAliases["cs2.zombieden.cn:27091"] = "110.42.9.152:27091";
+    m_ipAliases["cs2.zombieden.cn:27092"] = "110.42.9.152:27092";
+    m_ipAliases["cs6.zombieden.cn:27089"] = "110.42.9.150:27089";
+    m_ipAliases["cs6.zombieden.cn:27090"] = "110.42.9.150:27090";
+    m_ipAliases["cs6.zombieden.cn:27091"] = "110.42.9.150:27091";
+    m_ipAliases["cs5.zombieden.cn:27017"] = "110.42.9.149:27017";
+    m_ipAliases["cs5.zombieden.cn:27018"] = "110.42.9.149:27018";
 }
 
 void BaServerTime::connectWS()
@@ -40,7 +60,21 @@ void BaServerTime::disconnectWS()
 qint64 BaServerTime::getMapTime(const QString &ip, int port) const
 {
     QString key = ip + ":" + QString::number(port);
-    return m_mapTimes.value(key, 0);
+    qint64 t = m_mapTimes.value(key, 0);
+    if (t > 0) return t;
+    
+    QString alias = m_ipAliases.value(key, "");
+    if (!alias.isEmpty()) {
+        t = m_mapTimes.value(alias, 0);
+        if (t > 0) return t;
+    }
+    return 0;
+}
+
+qint64 BaServerTime::getMapTimeByName(const QString &name) const
+{
+    if (name.isEmpty()) return 0;
+    return m_nameMapTimes.value(name, 0);
 }
 
 void BaServerTime::onSocketConnected()
@@ -178,12 +212,22 @@ void BaServerTime::handleTextMessage(const QByteArray &message)
             QJsonObject s = sv.toObject();
             QString connectStr = s.value("connectStr").toString();
             QString dateTimeStr = s.value("dateTimeOriginal").toString();
+            
+            QString svName = s.value("name").toString();
+            if (svName.isEmpty()) svName = s.value("serverName").toString();
+            if (svName.isEmpty()) svName = s.value("hostname").toString();
+            if (svName.isEmpty()) svName = s.value("title").toString();
+            if (svName.isEmpty()) svName = s.value("server_name").toString();
             if (!connectStr.isEmpty() && !dateTimeStr.isEmpty()) {
                 
                 QString dtStr = dateTimeStr.left(23); 
                 QDateTime dt = QDateTime::fromString(dtStr, "yyyy-MM-dd HH:mm:ss.zzz");
                 if (dt.isValid()) {
-                    m_mapTimes[connectStr] = dt.toMSecsSinceEpoch();
+                    qint64 ts = dt.toMSecsSinceEpoch();
+                    m_mapTimes[connectStr] = ts;
+                    if (!svName.isEmpty()) {
+                        m_nameMapTimes[svName] = ts;
+                    }
                     count++;
                 }
             }

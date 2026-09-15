@@ -2,6 +2,7 @@
 #define APPCONTROLLER_H
 
 #include <QObject>
+#include <QThread>
 #include <QTimer>
 #include <QSettings>
 #include <QSystemTrayIcon>
@@ -50,14 +51,20 @@ class AppController : public QObject
     Q_PROPERTY(bool transparentWindow READ transparentWindow WRITE setTransparentWindow NOTIFY transparentWindowChanged)
     Q_PROPERTY(bool proMode READ proMode WRITE setProMode NOTIFY proModeChanged)
     Q_PROPERTY(double defaultJoinInterval READ defaultJoinInterval WRITE setDefaultJoinInterval NOTIFY defaultJoinIntervalChanged)
+    Q_PROPERTY(int cpuCoreCount READ cpuCoreCount NOTIFY cpuCoreCountChanged)
+    Q_PROPERTY(int joinCoreCount READ joinCoreCount WRITE setJoinCoreCount NOTIFY joinCoreCountChanged)
+    Q_PROPERTY(int activeJoinCoreCount READ activeJoinCoreCount WRITE setActiveJoinCoreCount NOTIFY activeJoinCoreCountChanged)
     Q_PROPERTY(bool floatWindowEnabled READ floatWindowEnabled WRITE setFloatWindowEnabled NOTIFY floatWindowEnabledChanged)
     Q_PROPERTY(int closeBehavior READ closeBehavior WRITE setCloseBehavior NOTIFY closeBehaviorChanged)
     Q_PROPERTY(bool startMinimizedToTray READ startMinimizedToTray WRITE setStartMinimizedToTray NOTIFY startMinimizedToTrayChanged)
     Q_PROPERTY(bool difficultyTierMode READ difficultyTierMode WRITE setDifficultyTierMode NOTIFY difficultyTierModeChanged)
     Q_PROPERTY(bool joinNotificationEnabled READ joinNotificationEnabled WRITE setJoinNotificationEnabled NOTIFY joinNotificationEnabledChanged)
+    Q_PROPERTY(bool minimizeNotificationEnabled READ minimizeNotificationEnabled WRITE setMinimizeNotificationEnabled NOTIFY minimizeNotificationEnabledChanged)
     Q_PROPERTY(QString configFolderPath READ configFolderPath NOTIFY configFolderPathChanged)
     Q_PROPERTY(bool debugPlayerList READ debugPlayerList WRITE setDebugPlayerList NOTIFY debugPlayerListChanged)
     Q_PROPERTY(int webMenuCommunity READ webMenuCommunity WRITE setWebMenuCommunity NOTIFY webMenuCommunityChanged)
+    Q_PROPERTY(bool cardViewMode READ cardViewMode WRITE setCardViewMode NOTIFY cardViewModeChanged)
+    Q_PROPERTY(QStringList serverListFilterOptions READ serverListFilterOptions WRITE setServerListFilterOptions NOTIFY serverListFilterOptionsChanged)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -106,6 +113,11 @@ public:
     void setProMode(bool p);
     double defaultJoinInterval() const { return m_defaultJoinInterval; }
     void setDefaultJoinInterval(double v);
+    int cpuCoreCount() const { return m_cpuCoreCount; }
+    int joinCoreCount() const { return m_joinCoreCount; }
+    void setJoinCoreCount(int c);
+    int activeJoinCoreCount() const { return m_activeJoinCoreCount; }
+    void setActiveJoinCoreCount(int c);
     bool floatWindowEnabled() const { return m_floatWindowEnabled; }
     void setFloatWindowEnabled(bool e);
     int closeBehavior() const { return m_closeBehavior; }
@@ -116,12 +128,18 @@ public:
     void setDifficultyTierMode(bool v);
     bool joinNotificationEnabled() const { return m_joinNotificationEnabled; }
     void setJoinNotificationEnabled(bool v);
+    bool minimizeNotificationEnabled() const { return m_minimizeNotificationEnabled; }
+    void setMinimizeNotificationEnabled(bool v);
     QString configFolderPath() const;
     Q_INVOKABLE void openConfigFolder();
     bool debugPlayerList() const { return m_debugPlayerList; }
     void setDebugPlayerList(bool v);
     int webMenuCommunity() const { return m_webMenuCommunity; }
     void setWebMenuCommunity(int v);
+    bool cardViewMode() const { return m_cardViewMode; }
+    void setCardViewMode(bool v);
+    QStringList serverListFilterOptions() const { return m_serverListFilterOptions; }
+    void setServerListFilterOptions(const QStringList &v);
 
     Q_INVOKABLE void queryServer();
     Q_INVOKABLE QString difficultyToTier(const QString &diff);
@@ -133,6 +151,7 @@ public:
     Q_INVOKABLE void saveSettings();
     Q_INVOKABLE void loadSettings();
     Q_INVOKABLE void openUrlDefaultBrowser(const QString &url);
+    Q_INVOKABLE void copyToClipboard(const QString &text);
     Q_INVOKABLE void tryClose();
     Q_INVOKABLE void minimizeToTray();
     Q_INVOKABLE void showMainWindow();
@@ -191,14 +210,20 @@ signals:
     void transparentWindowChanged(bool t);
     void proModeChanged(bool p);
     void defaultJoinIntervalChanged(double v);
+    void cpuCoreCountChanged(int c);
+    void joinCoreCountChanged(int c);
+    void activeJoinCoreCountChanged(int c);
     void floatWindowEnabledChanged(bool e);
     void closeBehaviorChanged(int b);
     void startMinimizedToTrayChanged(bool e);
     void difficultyTierModeChanged(bool v);
     void joinNotificationEnabledChanged(bool v);
+    void minimizeNotificationEnabledChanged(bool v);
     void configFolderPathChanged();
     void debugPlayerListChanged(bool v);
     void webMenuCommunityChanged(int v);
+    void cardViewModeChanged(bool v);
+    void serverListFilterOptionsChanged(const QStringList &v);
     void activateRequested();
 
 private slots:
@@ -252,13 +277,19 @@ private:
     bool m_transparentWindow;
     bool m_proMode;
     double m_defaultJoinInterval;
+    int m_cpuCoreCount;
+    int m_joinCoreCount;
+    int m_activeJoinCoreCount;
     bool m_floatWindowEnabled;
     int m_closeBehavior;
     bool m_startMinimizedToTray;
     bool m_difficultyTierMode;
     bool m_joinNotificationEnabled;
+    bool m_minimizeNotificationEnabled;
     bool m_debugPlayerList;
     int m_webMenuCommunity = 0;
+    bool m_cardViewMode = false;
+    QStringList m_serverListFilterOptions;
 
     void appendLog(const QString &msg, bool isError = false);
     void setStatus(const QString &text);
