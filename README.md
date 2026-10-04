@@ -109,7 +109,7 @@
 
 ### 直接使用
 
-1. 下载并解压发行包
+1. 下载选择保留
 2. 双击 **`Gallery.exe`**
 3. 首次运行会在「**文档 → HuskarUIcs2配置文件**」目录下创建配置文件
 
@@ -138,7 +138,7 @@ CS2JoinTool/
 ├── preview/                       HuskarUI 预览图
 ├── resources/                     应用图标资源
 ├── utils/                         HuskarUI 文档生成脚本
-├── agent/                         开发辅助（AI 技能定义）
+├── agent/                         开发辅助
 └── CMakeLists.txt                 顶层构建脚本
 ```
 
