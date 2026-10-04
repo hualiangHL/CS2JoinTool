@@ -1,0 +1,22 @@
+{
+    "__style__": {
+        "fontFamily": "@fontPrimaryFamily",
+        "fontSizeTitle": "@fontPrimarySize",
+        "fontSizeContent": "@fontPrimarySize",
+        "colorBorder": "@colorBorder",
+        "colorBorderDisabled": "@colorBorderDisabled",
+        "colorIcon": "@colorTextPrimary",
+        "colorIconDisabled": "@colorTextDisabled",
+        "colorTitle": "@colorTextPrimary",
+        "colorTitleDisabled": "@colorTextDisabled",
+        "colorTitleBg": "@colorFillTertiary",
+        "colorTitleBgDisabled": "$onBackground(@colorFillPrimary, @colorBgBase)",
+        "colorContent": "@colorTextPrimary",
+        "colorContentDisabled": "@colorTextDisabled",
+        "colorContentBg": "@colorBgBase",
+        "colorContentBgDisabled": "$onBackground(@colorFillTertiary, @colorBgBase)",
+        "colorBg": "@colorBgBase",
+        "colorBgDisabled": "$onBackground(@colorFillPrimary, @colorBgBase)",
+        "radiusBg": "@radiusPrimary"
+    }
+}

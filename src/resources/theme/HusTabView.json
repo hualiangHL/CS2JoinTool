@@ -1,0 +1,19 @@
+{
+    "__style__": {
+        "fontFamily": "@fontPrimaryFamily",
+        "fontSize": "@fontPrimarySize",
+        "colorTabClose": "@colorTextTertiary",
+        "colorTabCloseHover": "@colorTextBase",
+        "colorTab": "@colorTextBase",
+        "colorTabHover": "@colorPrimaryHover",
+        "colorTabActive": "@colorPrimaryActive",
+        "colorTabCardBg": "$onBackground(@colorFillSecondary, @colorBgBase)",
+        "colorTabCardBgActive": "@colorBgBase",
+        "colorTabCardBorder": "$alpha(@colorTextBase, 0.2)",
+        "colorTabCardBorderActive": "$alpha(@colorTextBase, 0.2)",
+        "colorHightlight": "@colorPrimaryBase-6",
+        "colorHightlightDark": "@colorPrimaryBase-5",
+        "radiusButton": "@radiusPrimary",
+        "radiusTabBg": "@radiusPrimary"
+    }
+}

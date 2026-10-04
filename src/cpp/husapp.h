@@ -1,0 +1,29 @@
+#ifndef HUSAPP_H
+#define HUSAPP_H
+
+#include "husglobal.h"
+
+#include <QtQml/qqml.h>
+
+class HUSKARUI_EXPORT HusApp : public QObject
+{
+    Q_OBJECT
+    QML_SINGLETON
+    QML_NAMED_ELEMENT(HusApp)
+
+public:
+    ~HusApp();
+
+    static void initialize(QQmlEngine *engine);
+
+    Q_INVOKABLE static QString libName();
+    Q_INVOKABLE static QString libVersion();
+
+    static HusApp *instance();
+    static HusApp *create(QQmlEngine *, QJSEngine *);
+
+private:
+    explicit HusApp(QObject *parent = nullptr);
+};
+
+#endif

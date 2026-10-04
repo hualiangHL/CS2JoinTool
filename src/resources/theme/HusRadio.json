@@ -1,0 +1,15 @@
+{
+    "__style__": {
+        "fontFamily": "@fontPrimaryFamily",
+        "fontSize": "@fontPrimarySize",
+        "colorText": "@colorTextBase",
+        "colorTextDisabled": "@colorTextDisabled",
+        "colorIndicator": "@colorBgBase",
+        "colorIndicatorChecked": "@colorPrimary",
+        "colorIndicatorDisabled": "$alpha(@colorTextBase, 0.05)",
+        "colorIndicatorBorder": "@colorTextQuaternary",
+        "colorIndicatorBorderChecked": "@colorPrimaryBorderActive",
+        "colorEffectBg": "@colorTextTertiary",
+        "radiusIndicator": "8"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "__style__": {
+        "fontFamily": "@fontPrimaryFamily",
+        "fontSize": "@fontPrimarySize",
+        "colorButtonText": "@colorTextBase",
+        "colorButtonTextActive": "@colorPrimaryTextActive",
+        "colorButtonTextDisabled": "@colorTextDisabled",
+        "colorButtonBg": "@colorBgBase",
+        "colorButtonBgHover": "$onBackground(@colorFillSecondary, @colorBgBase)",
+        "colorButtonBgActive": "$onBackground(@colorFill, @colorBgBase)",
+        "colorButtonBgDisabled": "$onBackground(@colorPrimaryContainerBgDisabled, @colorBgBase)",
+        "colorActionBg": "transparent",
+        "colorActionBgHover": "@colorFillSecondary",
+        "colorActionBgActive": "@colorFill",
+        "colorBorderActive": "@colorPrimaryBorderActive"
+    }
+}
