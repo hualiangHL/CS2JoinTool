@@ -12,7 +12,7 @@
 
 一个用 **Qt 6 + QML** 编写的 Windows 桌面工具，用于浏览国内各大 CS2 僵尸逃跑（ZE）社区的服务器、查看地图冷却、订阅地图、一键挤服。
 
-<img src="docs/images/screenshot-main.png" width="860" alt="主界面">
+<img src="docs/images/screenshot-main1.png" width="860" alt="主界面">
 
 </div>
 
