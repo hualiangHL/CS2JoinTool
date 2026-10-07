@@ -137,7 +137,7 @@ jobs:
           path: dist
 
       - name: Upload Release
-        if: startsWith(github.event.ref, 'refs/tags/')
+        if: false   # 已停用：原为 startsWith(..., refs/tags/)，会污染 Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -147,7 +147,7 @@ jobs:
           overwrite: true 
 
       - name: Upload Library
-        if: startsWith(github.event.ref, 'refs/tags/')
+        if: false   # 已停用：原为 startsWith(..., refs/tags/)，会污染 Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
